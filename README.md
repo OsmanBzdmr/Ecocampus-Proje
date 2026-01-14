@@ -54,3 +54,5 @@ npm start
 cd mobile
 npm install
 npx expo start
+
+https://github.com/OsmanBzdmr/Ecocampus-Proje/blob/main/screenshots/Ekran%20g%C3%B6r%C3%BCnt%C3%BCs%C3%BC%202026-01-13%20212910.png
