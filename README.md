@@ -30,29 +30,4 @@ Bu proje; **YMH3007 Fullstack Web ve Mobil Uygulama Geliştirme** dersi final ö
 
 ---
 
-## ⚙️ Kurulum ve Çalıştırma
 
-### 1. Veritabanı Kurulumu
-PostgreSQL üzerinde `ecocampus_db` adında bir veritabanı oluşturun ve aşağıdaki tabloları kurun:
-```sql
--- database.sql dosyasındaki sorguları çalıştırın.
-2. Backend Sunucusu
-
-cd backend
-npm install
-# .env dosyasını oluşturun ve DB bilgilerinizi girin
-node server.js
-
-3. Web Dashboard
-
-cd web
-npm install
-npm start
-
-4. Mobil Uygulama
-
-cd mobile
-npm install
-npx expo start
-
-https://github.com/OsmanBzdmr/Ecocampus-Proje/blob/main/screenshots/Ekran%20g%C3%B6r%C3%BCnt%C3%BCs%C3%BC%202026-01-13%20212910.png
