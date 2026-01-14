@@ -36,3 +36,21 @@ Bu proje; **YMH3007 Fullstack Web ve Mobil Uygulama Geliştirme** dersi final ö
 PostgreSQL üzerinde `ecocampus_db` adında bir veritabanı oluşturun ve aşağıdaki tabloları kurun:
 ```sql
 -- database.sql dosyasındaki sorguları çalıştırın.
+2. Backend Sunucusu
+
+cd backend
+npm install
+# .env dosyasını oluşturun ve DB bilgilerinizi girin
+node server.js
+
+3. Web Dashboard
+
+cd web
+npm install
+npm start
+
+4. Mobil Uygulama
+
+cd mobile
+npm install
+npx expo start
