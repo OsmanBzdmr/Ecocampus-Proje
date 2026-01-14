@@ -43,13 +43,12 @@ Projenin yerel ortamda (Localhost) hatasız çalışması için aşağıdaki ad�
 2. Gerekli kütüphaneleri yükleyin: `npm install`
 3. `.env.example` dosyasının adını `.env` olarak değiştirin ve kendi PostgreSQL kullanıcı adınızı/şifrenizi girin.
 4. Sunucuyu başlatın: `node server.js`
-   * *Sunucu varsayılan olarak `http://localhost:5000` adresinde çalışacaktır.*
+   * *Sunucu `http://localhost:5000`adresinde çalışacaktır.*
 
 ### 3. Web Yönetim Paneli Kurulumu
 1. `web` klasörüne gidin: `cd web`
 2. Kütüphaneleri yükleyin: `npm install`
 3. Uygulamayı başlatın: `npm start`
-   * *Tarayıcıda `http://localhost:3000` adresi otomatik olarak açılacaktır.*
 
 ### 4. Mobil Uygulama Kurulumu (Expo)
 1. `mobile` klasörüne gidin: `cd mobile`
