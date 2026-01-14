@@ -76,4 +76,6 @@ Projenin yerel ortamda (Localhost) hatasız çalışması için aşağıdaki ad�
 * `/screenshots`: Uygulama içi ekran görüntüleri.
 * `database.sql`: Veritabanı şeması ve başlangıç verileri.
 
+⚠️ ÖNEMLİ (Bağlantı Ayarı): Mobil uygulamanın backend sunucusuyla iletişim kurabilmesi için index.tsx dosyası içerisindeki axios.get veya fetch satırlarında bulunan IP adresini, bilgisayarınızın o anki yerel ağ IP adresiyle (Örn: http://192.168.x.x:5000) güncellediğinizden emin olun. localhost adresi fiziksel cihazlarda/emülatörlerde çalışmayacaktır.
+
 
