@@ -60,4 +60,21 @@ Projenin yerel ortamda (Localhost) hatasız çalışması için aşağıdaki ad�
 
 ---
 
+## 📋 Fonksiyonel Özellikler (Senaryolar)
+
+* **Kimlik Doğrulama:** Kullanıcılar kayıt olabilir, giriş yapabilir ve JWT üzerinden token alarak işlem yapabilir.
+* **Vitrin:** Giriş yapmayan kullanıcılar ürünleri listeleyebilir; ancak iletişim bilgilerini görmek ve ilan vermek için giriş yapmalıdır.
+* **Dinamik İlan Yönetimi:** İlan ekleme formunda fiyat `0 TL` girilirse, sistem bu ürünü otomatik olarak "BAĞIŞ" etiketiyle işaretler.
+* **Veri Senkronizasyonu:** Web ve Mobil platformlar aynı PostgreSQL veritabanını kullanır. Bir platformda silinen ilan, diğerinde de anında güncellenir.
+
+---
+
+## 📂 Proje Yapısı
+
+* `/backend`: Node.js, Express ve Veritabanı modelleri.
+* `/web`: React.js yönetim paneli kodları.
+* `/mobile`: Expo & React Native mobil uygulama kodları.
+* `/screenshots`: Uygulama içi ekran görüntüleri.
+* `database.sql`: Veritabanı şeması ve başlangıç verileri.
+
 
