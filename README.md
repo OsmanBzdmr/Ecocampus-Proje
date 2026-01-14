@@ -29,3 +29,10 @@ Bu proje; **YMH3007 Fullstack Web ve Mobil Uygulama Geliştirme** dersi final ö
 * **Axios:** API haberleşmesi.
 
 ---
+
+## ⚙️ Kurulum ve Çalıştırma
+
+### 1. Veritabanı Kurulumu
+PostgreSQL üzerinde `ecocampus_db` adında bir veritabanı oluşturun ve aşağıdaki tabloları kurun:
+```sql
+-- database.sql dosyasındaki sorguları çalıştırın.
