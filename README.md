@@ -65,7 +65,7 @@ Eco_campus/
 ### 1. Repoyu klonla
 
 ```bash
-git clone https://github.com/kullanici_adi/ecocampus.git
+git clone https://github.com/OsmanBzdmr/Ecocampus-Proje
 cd ecocampus
 ```
 
