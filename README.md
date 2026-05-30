@@ -1,9 +1,5 @@
 # 🌿 EcoCampus — Sürdürülebilir Kampüs Pazaryeri
 
-<p align="center">
-  <img src="screenshots/Diyagram.png" alt="EcoCampus Diyagram" width="600"/>
-</p>
-
 **EcoCampus**, üniversite öğrencilerinin kampüs içinde eşya paylaşmasını, israfı azaltmasını ve öğrenci ekonomisini desteklemesini sağlayan modern bir full-stack pazaryeri platformudur.
 
 > React · Node.js · PostgreSQL · JWT · Tailwind CSS · React Native (Expo)
@@ -75,8 +71,6 @@ cd ecocampus
 
 ### 2. Veritabanını kur
 
-`backend/` klasöründe:
-
 ```bash
 cd backend
 cp .env.example .env
@@ -127,22 +121,12 @@ npx expo start
 | GET | `/api/products` | Tüm ilanları getir | — |
 | POST | `/api/products` | Yeni ilan ekle | ✅ |
 | DELETE | `/api/products/:id` | İlan sil (sadece sahibi) | ✅ |
-| GET | `/api/categories` | Kategorileri getir | — |
-
----
-
-## 🖼️ Ekran Görüntüleri
-
-<p align="center">
-  <img src="screenshots/Ekran görüntüsü 2026-01-14 131629.png" width="45%"/>
-  <img src="screenshots/Ekran görüntüsü 2026-01-14 131835.png" width="45%"/>
-</p>
 
 ---
 
 ## ⚙️ Ortam Değişkenleri
 
-`backend/.env` dosyasını oluşturun:
+`backend/.env` dosyasını `.env.example` dosyasından oluşturun:
 
 ```env
 DB_USER=postgres
