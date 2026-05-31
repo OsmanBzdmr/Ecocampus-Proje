@@ -1,8 +1,5 @@
 # 🌿 EcoCampus — Sürdürülebilir Kampüs Pazaryeri
 
-<p align="center">
-  <img src="screenshots/Diyagram.png" alt="EcoCampus Diyagram" width="600"/>
-</p>
 
 **EcoCampus**, üniversite öğrencilerinin kampüs içinde eşya paylaşmasını, israfı azaltmasını ve öğrenci ekonomisini desteklemesini sağlayan modern bir full-stack pazaryeri platformudur.
 > React · Node.js · PostgreSQL · JWT · Tailwind CSS · React Native (Expo)
@@ -130,12 +127,6 @@ npx expo start
 
 ---
 
-## 🖼️ Ekran Görüntüleri
-
-<p align="center">
-  <img src="screenshots/Ekran görüntüsü 2026-01-14 131629.png" width="45%"/>
-  <img src="screenshots/Ekran görüntüsü 2026-01-14 131835.png" width="45%"/>
-</p>
 
 ---
 
