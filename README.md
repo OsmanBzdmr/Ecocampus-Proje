@@ -97,7 +97,7 @@ Eco_campus/
 
 ```bash
 git clone https://github.com/OsmanBzdmr/Ecocampus-Proje
-cd ecocampus
+cd Ecocampus-Proje
 ```
 
 ### 2. Veritabanını kur
