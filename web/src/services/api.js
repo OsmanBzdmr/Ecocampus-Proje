@@ -10,3 +10,5 @@ export const deleteProduct = (id, token) => API.delete(`/api/products/${id}`, {
   headers: { Authorization: token }
 });
 export const login = (credentials) => API.post('/api/auth/login', credentials);
+export const register = (data) => API.post('/api/auth/register', data);
+export const fetchCategories = () => API.get('/api/categories');

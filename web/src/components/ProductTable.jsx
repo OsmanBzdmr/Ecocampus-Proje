@@ -1,7 +1,21 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Trash2, AlertCircle } from 'lucide-react';
+import { fetchCategories } from '../services/api';
 
 export default function ProductTable({ products, onDelete, loading }) {
+  const [categories, setCategories] = useState([]);
+
+  useEffect(() => {
+    fetchCategories()
+      .then((res) => setCategories(res.data))
+      .catch((err) => console.error('Kategori yükleme hatası:', err));
+  }, []);
+
+  const getCategoryName = (categoryId) => {
+    const cat = categories.find((c) => c.id === categoryId);
+    return cat ? cat.name : '—';
+  };
+
   if (loading) {
     return (
       <div className="bg-white rounded-2xl shadow-lg p-8">
@@ -37,6 +51,7 @@ export default function ProductTable({ products, onDelete, loading }) {
               <tr className="border-b-2 border-gray-200">
                 <th className="text-left py-3 px-4 font-semibold text-gray-700">Resim</th>
                 <th className="text-left py-3 px-4 font-semibold text-gray-700">Başlık</th>
+                <th className="text-left py-3 px-4 font-semibold text-gray-700">Kategori</th>
                 <th className="text-left py-3 px-4 font-semibold text-gray-700">Fiyat</th>
                 <th className="text-left py-3 px-4 font-semibold text-gray-700">İşlem</th>
               </tr>
@@ -59,6 +74,11 @@ export default function ProductTable({ products, onDelete, loading }) {
                         <p className="text-sm text-gray-600 truncate">{product.description}</p>
                       )}
                     </div>
+                  </td>
+                  <td className="py-4 px-4">
+                    <span className="inline-block bg-gray-100 text-gray-700 px-3 py-1 rounded-full text-sm">
+                      {getCategoryName(product.category_id)}
+                    </span>
                   </td>
                   <td className="py-4 px-4">
                     {product.price == 0 ? (
@@ -97,6 +117,9 @@ export default function ProductTable({ products, onDelete, loading }) {
                 />
                 <div className="flex-1">
                   <p className="font-semibold text-gray-900">{product.title}</p>
+                  <span className="inline-block bg-gray-100 text-gray-700 px-2 py-0.5 rounded text-xs mt-1">
+                    {getCategoryName(product.category_id)}
+                  </span>
                   {product.description && (
                     <p className="text-sm text-gray-600 truncate">{product.description}</p>
                   )}

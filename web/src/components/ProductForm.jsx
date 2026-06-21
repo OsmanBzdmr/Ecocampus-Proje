@@ -1,22 +1,38 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Plus, Loader } from 'lucide-react';
-import { addProduct as addProductApi } from '../services/api';
+import { addProduct as addProductApi, fetchCategories } from '../services/api';
 import Toast from './Toast';
 
 export default function ProductForm({ token, onProductAdded }) {
+  const [categories, setCategories] = useState([]);
   const [newProduct, setNewProduct] = useState({
     title: '',
     price: '',
     description: '',
     image_url: '',
-    category_id: 1
+    category_id: ''
   });
   const [loading, setLoading] = useState(false);
   const [toast, setToast] = useState(null);
 
+  useEffect(() => {
+    const loadCategories = async () => {
+      try {
+        const res = await fetchCategories();
+        setCategories(res.data);
+        if (res.data.length > 0) {
+          setNewProduct((prev) => ({ ...prev, category_id: res.data[0].id }));
+        }
+      } catch (error) {
+        console.error('Kategori yükleme hatası:', error);
+      }
+    };
+    loadCategories();
+  }, []);
+
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
+
     if (!newProduct.title || !newProduct.price || !newProduct.image_url) {
       setToast({ type: 'error', message: 'Lütfen tüm alanları doldurunuz' });
       return;
@@ -26,21 +42,21 @@ export default function ProductForm({ token, onProductAdded }) {
 
     try {
       await addProductApi(newProduct, token);
-      
+
       const isDonation = parseFloat(newProduct.price) === 0;
-      setToast({ 
-        type: 'success', 
-        message: isDonation ? '✨ Bağış başarıyla eklendi!' : '✅ Ürün başarıyla eklendi!' 
+      setToast({
+        type: 'success',
+        message: isDonation ? '✨ Bağış başarıyla eklendi!' : '✅ Ürün başarıyla eklendi!'
       });
-      
+
       setNewProduct({
         title: '',
         price: '',
         description: '',
         image_url: '',
-        category_id: 1
+        category_id: categories.length > 0 ? categories[0].id : ''
       });
-      
+
       onProductAdded();
     } catch (error) {
       setToast({ type: 'error', message: 'Ürün eklenirken hata oluştu' });
@@ -74,6 +90,24 @@ export default function ProductForm({ token, onProductAdded }) {
               placeholder="Örn: Kullanılmış Laptop"
               className="w-full px-4 py-2.5 rounded-lg border border-gray-300 focus:ring-2 focus:ring-eco-500 focus:border-transparent outline-none transition"
             />
+          </div>
+
+          <div>
+            <label className="block text-sm font-semibold text-gray-700 mb-2">
+              Kategori
+            </label>
+            <select
+              value={newProduct.category_id}
+              onChange={(e) => setNewProduct({ ...newProduct, category_id: e.target.value })}
+              className="w-full px-4 py-2.5 rounded-lg border border-gray-300 focus:ring-2 focus:ring-eco-500 focus:border-transparent outline-none transition bg-white"
+            >
+              {categories.length === 0 && <option value="">Kategoriler yükleniyor...</option>}
+              {categories.map((cat) => (
+                <option key={cat.id} value={cat.id}>
+                  {cat.name}
+                </option>
+              ))}
+            </select>
           </div>
 
           <div>
