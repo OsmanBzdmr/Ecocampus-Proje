@@ -15,6 +15,7 @@
 - 📊 **Dashboard Analitik** — Toplam ilan, satılık ürün ve bağış sayılarını anlık takip edin
 - 🗑️ **İlan Yönetimi** — Kendi ilanlarınızı oluşturun, düzenleyin ve silin (yetkisiz işlemler backend tarafından reddedilir)
 - 🔍 **Arama, Filtreleme ve Sayfalama** — Başlık/açıklamada arama, kategoriye göre filtreleme; sayfalama opt-in'dir, eski istemcilerle geriye dönük uyumlu kalır
+- 📱 **Tam Mobil Destek** — Expo ile giriş, kayıt, ilan ekleme/silme, pull-to-refresh, auth guard ve güvenli token yönetimi (expo-secure-store)
 - 🛡️ **Güvenlik Sertleştirmesi** — Helmet güvenlik header'ları, genel ve auth'a özel rate limiting (brute-force koruması), tüm girdiler için sunucu taraflı doğrulama, kısıtlı CORS
 - ✅ **Test Edilmiş Backend** — Jest + Supertest ile auth ve ürün uçları için otomatik testler, ESLint ile kod kalitesi kontrolü
 - 🎨 **Modern UI** — Tailwind CSS ile responsive tasarım, toast bildirimleri, loading animasyonları
@@ -66,7 +67,21 @@ Eco_campus/
 │   │   ├── services/api.js   # Axios API katmanı
 │   │   └── App.jsx
 │   └── package.json
-├── mobile/                   # React Native (Expo) — şu an sadece ilan listesi (salt okunur)
+├── mobile/
+│   ├── app/
+│   │   ├── _layout.tsx        # Auth guard + Stack navigator
+│   │   ├── login.tsx          # Giriş ekranı
+│   │   ├── register.tsx       # Kayıt ekranı
+│   │   ├── modal.tsx
+│   │   └── (tabs)/
+│   │       ├── _layout.tsx    # Tab navigator (İlanlar, İlan Ekle, Hakkında)
+│   │       ├── index.tsx      # İlan listesi (silme, pull-to-refresh)
+│   │       ├── add-product.tsx# İlan ekleme formu
+│   │       └── explore.tsx    # Hakkında + çıkış butonu
+│   ├── services/
+│   │   ├── api.ts             # Axios API katmanı (6 endpoint)
+│   │   └── auth.ts            # Token saklama (expo-secure-store)
+│   ├── constants/theme.ts     # Web ile uyumlu eco renk paleti
 └── README.md
 ```
 
@@ -141,7 +156,7 @@ npx expo start
 # Expo Go uygulamasıyla QR kodu okutun
 ```
 
-> 📱 **Not:** Mobil uygulama şu an geliştirme aşamasında — sadece ilan listesini (salt okunur) gösteriyor. Giriş, kayıt, ilan ekleme/silme ekranları yakında eklenecek.
+> 📱 **Not:** Mobil uygulama açıldığında auth guard sizi giriş ekranına yönlendirir. `test@university.edu` / `test123` ile giriş yapabilir veya "Kayıt ol" linkinden yeni hesap oluşturabilirsiniz. Giriş sonrası ilanları görüntüleyebilir, silebilir ve "İlan Ekle" tab'ından yeni ilan verebilirsiniz.
 
 ---
 
