@@ -3,6 +3,13 @@ node_modules/
 .pnp
 .pnp.js
 
+# SQLite database files
+*.db
+*.db-shm
+*.db-wal
+*.sqlite
+*.sqlite3
+
 # Environment variables — NEVER commit these
 .env
 .env.local

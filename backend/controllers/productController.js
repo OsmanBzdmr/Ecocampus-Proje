@@ -1,18 +1,17 @@
-const pool = require('../config/db');
+const db = require('../config/db');
 const jwt = require('jsonwebtoken');
 
-exports.getProducts = async (req, res) => {
+exports.getProducts = (req, res) => {
   try {
-    const allProducts = await pool.query('SELECT * FROM products ORDER BY id DESC');
-    res.json(allProducts.rows);
+    const products = db.prepare('SELECT * FROM products ORDER BY id DESC').all();
+    res.json(products);
   } catch (err) {
     res.status(500).json(err.message);
   }
 };
 
-exports.createProduct = async (req, res) => {
+exports.createProduct = (req, res) => {
   try {
-    // user_id'yi token'dan al (frontend'den gelmesine gerek yok)
     const token = req.headers.authorization;
     if (!token) return res.status(401).json('Token gerekli');
 
@@ -25,17 +24,18 @@ exports.createProduct = async (req, res) => {
       return res.status(400).json('Başlık ve fiyat zorunludur');
     }
 
-    const newProduct = await pool.query(
-      'INSERT INTO products (title, price, description, image_url, category_id, user_id) VALUES ($1, $2, $3, $4, $5, $6) RETURNING *',
-      [title, price, description, image_url, category_id || 1, user_id]
+    const stmt = db.prepare(
+      'INSERT INTO products (title, price, description, image_url, category_id, user_id) VALUES (?, ?, ?, ?, ?, ?)'
     );
-    res.json(newProduct.rows[0]);
+    const info = stmt.run(title, price, description, image_url, category_id || 1, user_id);
+    const product = db.prepare('SELECT * FROM products WHERE id = ?').get(info.lastInsertRowid);
+    res.json(product);
   } catch (err) {
     res.status(500).json(err.message);
   }
 };
 
-exports.deleteProduct = async (req, res) => {
+exports.deleteProduct = (req, res) => {
   try {
     const token = req.headers.authorization;
     if (!token) return res.status(401).json('Token gerekli');
@@ -45,12 +45,11 @@ exports.deleteProduct = async (req, res) => {
 
     const { id } = req.params;
 
-    // Sadece kendi ürününü silebilir
-    const product = await pool.query('SELECT * FROM products WHERE id = $1', [id]);
-    if (product.rows.length === 0) return res.status(404).json('Ürün bulunamadı');
-    if (product.rows[0].user_id !== user_id) return res.status(403).json('Bu ürünü silme yetkiniz yok');
+    const product = db.prepare('SELECT * FROM products WHERE id = ?').get(id);
+    if (!product) return res.status(404).json('Ürün bulunamadı');
+    if (product.user_id !== user_id) return res.status(403).json('Bu ürünü silme yetkiniz yok');
 
-    await pool.query('DELETE FROM products WHERE id = $1', [id]);
+    db.prepare('DELETE FROM products WHERE id = ?').run(id);
     res.json({ message: 'Ürün silindi' });
   } catch (err) {
     res.status(500).json(err.message);

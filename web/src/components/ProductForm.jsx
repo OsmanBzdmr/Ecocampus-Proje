@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import axios from 'axios';
 import { Plus, Loader } from 'lucide-react';
+import { addProduct as addProductApi } from '../services/api';
 import Toast from './Toast';
 
 export default function ProductForm({ token, onProductAdded }) {
@@ -25,9 +25,7 @@ export default function ProductForm({ token, onProductAdded }) {
     setLoading(true);
 
     try {
-      await axios.post('http://localhost:5000/api/products', newProduct, {
-        headers: { Authorization: token }
-      });
+      await addProductApi(newProduct, token);
       
       const isDonation = parseFloat(newProduct.price) === 0;
       setToast({ 

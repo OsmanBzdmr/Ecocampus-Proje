@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import axios from 'axios';
 import { LogOut, Package, Home, Leaf } from 'lucide-react';
+import { deleteProduct as deleteProductApi } from '../services/api';
 import ProductForm from './ProductForm';
 import ProductTable from './ProductTable';
 import StatsCard from './StatsCard';
@@ -15,9 +15,7 @@ export default function Dashboard({ token, onLogout, products, loading, onProduc
   const handleDelete = async (id) => {
     setDeleting(true);
     try {
-      await axios.delete(`http://localhost:5000/api/products/${id}`, {
-        headers: { Authorization: token }
-      });
+      await deleteProductApi(id, token);
       setToast({ type: 'success', message: 'İlan başarıyla silindi' });
       setConfirmDelete(null);
       fetchProducts();

@@ -2,7 +2,7 @@
 
 
 **EcoCampus**, üniversite öğrencilerinin kampüs içinde eşya paylaşmasını, israfı azaltmasını ve öğrenci ekonomisini desteklemesini sağlayan modern bir full-stack pazaryeri platformudur.
-> React · Node.js · PostgreSQL · JWT · Tailwind CSS · React Native (Expo)
+> React · Node.js · SQLite · JWT · Tailwind CSS · React Native (Expo)
 
 ---
 
@@ -22,7 +22,7 @@
 | Katman | Teknoloji |
 |---|---|
 | Backend | Node.js, Express.js |
-| Veritabanı | PostgreSQL |
+| Veritabanı | SQLite |
 | Güvenlik | JWT, Bcryptjs |
 | Web Frontend | React 19, Tailwind CSS v3, Axios, Lucide React |
 | Mobil | React Native (Expo) |
@@ -35,7 +35,7 @@
 ```
 Eco_campus/
 ├── backend/
-│   ├── config/db.js          # PostgreSQL bağlantısı
+│   ├── config/db.js          # SQLite bağlantısı
 │   ├── controllers/          # İş mantığı
 │   ├── routes/               # API endpoint'leri
 │   ├── server.js             # Express sunucu
@@ -49,7 +49,6 @@ Eco_campus/
 │   │   └── App.jsx
 │   └── package.json
 ├── mobile/                   # React Native (Expo)
-├── database.sql              # Veritabanı şeması
 └── README.md
 ```
 
@@ -59,7 +58,6 @@ Eco_campus/
 
 ### Gereksinimler
 - Node.js 16+
-- PostgreSQL 12+
 - npm
 
 ### 1. Repoyu klonla
@@ -76,7 +74,6 @@ cd ecocampus
 ```bash
 cd backend
 cp .env.example .env
-# .env dosyasını kendi PostgreSQL bilgilerinizle düzenleyin
 npm install
 node setup-db.js
 ```
@@ -135,11 +132,7 @@ npx expo start
 `backend/.env` dosyasını `.env.example` dosyasından oluşturun:
 
 ```env
-DB_USER=postgres
-DB_HOST=localhost
-DB_NAME=ecocampus_db
-DB_PASSWORD=your_password
-DB_PORT=5432
+DB_PATH=./ecocampus.db
 JWT_SECRET=your_jwt_secret
 PORT=5000
 ```

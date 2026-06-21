@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import { fetchProducts as fetchProductsApi } from './services/api';
 import LoginPage from './components/LoginPage';
 import Dashboard from './components/Dashboard';
 
@@ -11,7 +11,7 @@ function App() {
   const fetchProducts = async () => {
     try {
       setLoading(true);
-      const res = await axios.get('http://localhost:5000/api/products');
+      const res = await fetchProductsApi();
       setProducts(res.data);
     } catch (err) {
       console.error('Ürün yükleme hatası:', err);

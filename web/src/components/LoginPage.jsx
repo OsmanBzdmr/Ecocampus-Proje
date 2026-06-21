@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import axios from 'axios';
 import { Lock, Leaf } from 'lucide-react';
+import { login as loginApi } from '../services/api';
 
 export default function LoginPage({ setToken }) {
   const [email, setEmail] = useState('');
@@ -14,10 +14,7 @@ export default function LoginPage({ setToken }) {
     setLoading(true);
 
     try {
-      const res = await axios.post('http://localhost:5000/api/auth/login', { 
-        email, 
-        password 
-      });
+      const res = await loginApi({ email, password });
       localStorage.setItem('token', res.data.token);
       setToken(res.data.token);
     } catch (err) {
