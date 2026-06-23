@@ -1,5 +1,3 @@
-import React from 'react';
-
 export default function StatsCard({ title, value, icon, color }) {
   return (
     <div className={`${color} rounded-2xl shadow-lg p-6 space-y-3`}>

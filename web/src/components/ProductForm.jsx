@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { Plus, Pencil, Loader, X } from 'lucide-react';
 import { addProduct as addProductApi, updateProduct as updateProductApi, fetchCategories } from '../services/api';
 import Toast from './Toast';

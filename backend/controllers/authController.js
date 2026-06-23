@@ -43,3 +43,25 @@ exports.login = async (req, res, next) => {
     next(err);
   }
 };
+
+exports.getMe = (req, res, next) => {
+  try {
+    const user = db.prepare('SELECT id, username, email, created_at FROM users WHERE id = ?').get(req.user_id);
+    if (!user) return res.status(404).json({ message: 'Kullanıcı bulunamadı' });
+
+    const stats = db.prepare(`
+      SELECT
+        COUNT(*) as totalListings,
+        COALESCE(SUM(CASE WHEN price > 0 THEN 1 ELSE 0 END), 0) as activeListings,
+        COALESCE(SUM(CASE WHEN price = 0 THEN 1 ELSE 0 END), 0) as donationListings,
+        COALESCE(SUM(price), 0) as totalValue
+      FROM products WHERE user_id = ?
+    `).get(req.user_id);
+
+    const listings = db.prepare('SELECT * FROM products WHERE user_id = ? ORDER BY created_at DESC').all(req.user_id);
+
+    res.json({ user, stats, listings });
+  } catch (err) {
+    next(err);
+  }
+};

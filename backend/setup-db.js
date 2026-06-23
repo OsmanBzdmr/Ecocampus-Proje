@@ -21,6 +21,22 @@ function setupDatabase() {
     console.log('  OK categories tablosu oluşturuldu');
     console.log('  OK products tablosu oluşturuldu\n');
 
+    console.log('Migration: users.created_at sütunu ekleniyor...');
+    const usersColInfo = db.prepare("PRAGMA table_info('users')").all();
+    if (!usersColInfo.some((c) => c.name === 'created_at')) {
+      db.exec("ALTER TABLE users ADD COLUMN created_at DATETIME");
+    }
+    db.prepare("UPDATE users SET created_at = datetime('now') WHERE created_at IS NULL").run();
+    console.log('  OK users.created_at sütunu hazır\n');
+
+    console.log('Migration: products.created_at sütunu ekleniyor...');
+    const prodColInfo = db.prepare("PRAGMA table_info('products')").all();
+    if (!prodColInfo.some((c) => c.name === 'created_at')) {
+      db.exec("ALTER TABLE products ADD COLUMN created_at DATETIME");
+    }
+    db.prepare("UPDATE products SET created_at = datetime('now') WHERE created_at IS NULL").run();
+    console.log('  OK products.created_at sütunu hazır\n');
+
     console.log('Örnek veriler ekleniyor...');
     seedDemoData(db);
     console.log('  OK 3 kategori eklendi');

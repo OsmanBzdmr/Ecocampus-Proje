@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API = axios.create({ baseURL: import.meta.env.VITE_API_URL || 'http://localhost:5000' });
+const API = axios.create();
 
 export const fetchProducts = (params = {}) => API.get('/api/products', { params });
 export const addProduct = (data, token) => API.post('/api/products', data, {
@@ -15,3 +15,4 @@ export const deleteProduct = (id, token) => API.delete(`/api/products/${id}`, {
 export const login = (credentials) => API.post('/api/auth/login', credentials);
 export const register = (data) => API.post('/api/auth/register', data);
 export const fetchCategories = () => API.get('/api/categories');
+export const getMe = (token) => API.get('/api/auth/me', { headers: { Authorization: token } });

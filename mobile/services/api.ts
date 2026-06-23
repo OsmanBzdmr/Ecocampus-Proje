@@ -54,3 +54,12 @@ export const deleteProduct = (id: number, token: string) =>
 
 export const fetchCategories = () =>
   API.get<Category[]>('/api/categories');
+
+export interface ProfileResponse {
+  user: { id: number; username: string; email: string; created_at: string };
+  stats: { totalListings: number; activeListings: number; donationListings: number; totalValue: number };
+  listings: Product[];
+}
+
+export const getMe = (token: string) =>
+  API.get<ProfileResponse>('/api/auth/me', { headers: { Authorization: token } });

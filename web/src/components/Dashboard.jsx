@@ -1,10 +1,11 @@
-import React, { useState, useEffect, useCallback } from 'react';
-import { LogOut, Package, Home, Leaf, Search, ChevronLeft, ChevronRight } from 'lucide-react';
+import { useState, useEffect, useCallback } from 'react';
+import { LogOut, Package, Home, Leaf, Search, ChevronLeft, ChevronRight, User } from 'lucide-react';
 import { fetchProducts as fetchProductsApi, deleteProduct as deleteProductApi, fetchCategories } from '../services/api';
 import ProductForm from './ProductForm';
 import ProductTable from './ProductTable';
 import StatsCard from './StatsCard';
 import Toast from './Toast';
+import ProfilePage from './ProfilePage';
 
 export default function Dashboard({ token, onLogout }) {
   const [activeTab, setActiveTab] = useState('dashboard');
@@ -134,6 +135,17 @@ export default function Dashboard({ token, onLogout }) {
                   {totalCount}
                 </span>
               )}
+            </button>
+            <button
+              onClick={() => setActiveTab('profile')}
+              className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition ${
+                activeTab === 'profile'
+                  ? 'bg-eco-600 text-white'
+                  : 'text-gray-300 hover:bg-gray-700'
+              }`}
+            >
+              <User className="w-5 h-5" />
+              Profil
             </button>
           </nav>
 
@@ -274,6 +286,11 @@ export default function Dashboard({ token, onLogout }) {
                   </div>
                 )}
               </div>
+            )}
+
+            {/* Profile Tab */}
+            {activeTab === 'profile' && (
+              <ProfilePage token={token} onLogout={onLogout} />
             )}
           </div>
         </main>

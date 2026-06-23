@@ -6,7 +6,8 @@ function createSchema(db) {
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       username VARCHAR(50) NOT NULL,
       email VARCHAR(100) UNIQUE NOT NULL,
-      password TEXT NOT NULL
+      password TEXT NOT NULL,
+      created_at DATETIME DEFAULT CURRENT_TIMESTAMP
     )
   `);
 
@@ -26,7 +27,8 @@ function createSchema(db) {
       description TEXT,
       image_url TEXT,
       user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
-      category_id INTEGER REFERENCES categories(id)
+      category_id INTEGER REFERENCES categories(id),
+      created_at DATETIME DEFAULT CURRENT_TIMESTAMP
     )
   `);
 }

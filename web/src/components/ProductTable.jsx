@@ -1,4 +1,3 @@
-import React from 'react';
 import { Trash2, Pencil, AlertCircle } from 'lucide-react';
 
 export default function ProductTable({ products, onDelete, onEdit, loading, categories = [] }) {

@@ -1,7 +1,7 @@
 const express = require('express');
 const cors = require('cors');
 const helmet = require('helmet');
-require('dotenv').config();
+require('dotenv').config({ path: require('path').join(__dirname, '.env') });
 
 if (!process.env.JWT_SECRET) {
   console.error('HATA: JWT_SECRET ortam değişkeni tanımlı değil. .env dosyanızı kontrol edin (.env.example üzerinden oluşturabilirsiniz).');

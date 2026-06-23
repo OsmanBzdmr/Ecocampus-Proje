@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Lock, Leaf } from 'lucide-react';
 import { login as loginApi } from '../services/api';
 
