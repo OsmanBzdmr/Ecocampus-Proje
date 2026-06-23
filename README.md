@@ -19,7 +19,7 @@
 - 📱 **Tam Mobil Destek** — Expo ile giriş, kayıt, ilan ekleme/düzenleme/silme, pull-to-refresh, auth guard ve güvenli token yönetimi (expo-secure-store)
 - 🛡️ **Güvenlik Sertleştirmesi** — Helmet güvenlik header'ları, genel ve auth'a özel rate limiting (brute-force koruması), tüm girdiler için sunucu taraflı doğrulama, kısıtlı CORS
 - ✅ **Test Edilmiş Backend** — Jest + Supertest ile auth ve ürün uçları için otomatik testler, ESLint ile kod kalitesi kontrolü
-- 👤 **Profil Sayfası** — Kullanıcı bilgileri, üyelik tarihi, kendi ilanlarının listesi ve istatistikler (web + mobil)
+- 👤 **Profil Sayfası** — Kullanıcı bilgileri, üyelik tarihi, kendi ilanlarının listesi ve istatistikler (web)
 - 🎨 **Modern UI** — Tailwind CSS ile responsive tasarım, toast bildirimleri, loading animasyonları
 
 ---
@@ -82,10 +82,9 @@ Eco_campus/
 │   │       ├── _layout.tsx    # Tab navigator (İlanlar, İlan Ekle, Hakkında)
 │   │       ├── index.tsx      # İlan listesi (silme, düzenleme, pull-to-refresh)
 │   │       ├── add-product.tsx# İlan ekleme formu
-│   │       ├── explore.tsx    # Hakkında (uygulama bilgisi)
-│   │       └── profile.tsx    # Profil ekranı — avatar, istatistikler, ilanlar, çıkış
+│   │       └── explore.tsx    # Hakkında (uygulama bilgisi)
 │   ├── services/
-│   │   ├── api.ts             # Axios API katmanı (8 endpoint: CRUD + auth + kategori + profil)
+│   │   ├── api.ts             # Axios API katmanı (7 endpoint: CRUD + auth + kategori)
 │   │   └── auth.ts            # Token saklama (expo-secure-store)
 │   ├── constants/theme.ts     # Web ile uyumlu eco renk paleti
 └── README.md
@@ -190,28 +189,16 @@ npx expo start
 `backend/.env` dosyasını `.env.example` dosyasından oluşturun:
 
 ```env
-DB_PATH=./ecocampus.db
 JWT_SECRET=guclu_ve_rastgele_bir_deger_buraya
 PORT=5000
-NODE_ENV=development
-
-# CORS - izin verilen origin'ler (virgülle ayrılmış, boşluksuz)
-CORS_ORIGIN=http://localhost:5173,http://127.0.0.1:5173,http://localhost:5174,http://127.0.0.1:5174
-
-# Genel API rate limit (tüm uçlar için, 15dk'da 300 istek)
-RATE_LIMIT_WINDOW_MS=900000
-RATE_LIMIT_MAX=300
-
-# Auth uçları (login/register) için daha sıkı rate limit (15dk'da 10 deneme)
-AUTH_RATE_LIMIT_WINDOW_MS=900000
-AUTH_RATE_LIMIT_MAX=10
+CORS_ORIGIN=http://localhost:5173,http://127.0.0.1:5173
 ```
 
 `JWT_SECRET` tanımlı değilse sunucu başlangıçta hata verip kapanır — varsayılan/sabit bir secret ile asla çalışmaz. Rastgele bir değer üretmek için kurulum adımındaki komutu kullanın. Projeye eklenen `.env` dosyası önceden oluşturulmuş güçlü bir rastgele değer içerir, production'da mutlaka kendiniz yenileyin.
 
-`CORS_ORIGIN` virgülle ayrılmış birden fazla origin alır; Vite `--host` ile başlatıldığında `127.0.0.1` üzerinden de erişilebildiği için her ikisini de eklemeniz önerilir. Rate limit değerleri test ortamında (`NODE_ENV=test`) otomatik devre dışı kalır.
+`CORS_ORIGIN` virgülle ayrılmış birden fazla origin alır; Vite `--host` ile başlatıldığında `127.0.0.1` üzerinden de erişilebildiği için her ikisini de eklemeniz önerilir.
 
-> **Web için:** Vite proxy kullanılıyor (`vite.config.js` → `server.proxy`). `/api/*` istekleri otomatik olarak `http://localhost:5000`'e yönlendirilir — `web/.env` dosyasına gerek yoktur. Backend farklı bir portta çalışıyorsa `vite.config.js`'deki proxy hedefini güncelleyin.
+> **Web için:** Frontend, API'ye `VITE_API_URL` ortam değişkeni üzerinden bağlanır (`.env` ile yapılandırılır). Frontend'i çalıştırmadan önce backend'in ayakta olduğundan emin olun.
 
 ---
 
