@@ -45,7 +45,10 @@ Eco_campus/
 ├── backend/
 │   ├── config/db.js          # PostgreSQL bağlantısı (Pool)
 │   ├── controllers/          # İş mantığı
-│   ├── db/schema.js          # Paylaşımlı şema + seed (setup-db.js ve testler kullanır)
+│   ├── db/
+│   │   ├── seed.js           # Demo veri (kullanıcı, kategori, ürün)
+│   │   └── schema.js         # Testler için migration SQL'lerini okur
+│   ├── migrations/           # SQL migration dosyaları
 │   ├── middleware/
 │   │   ├── authMiddleware.js       # JWT doğrulama (merkezi)
 │   │   ├── rateLimiter.js          # Genel + auth'a özel rate limiting
@@ -53,7 +56,8 @@ Eco_campus/
 │   ├── routes/                # API endpoint'leri
 │   ├── tests/                 # Jest + Supertest testleri (mock veritabanı ile)
 │   ├── server.js              # Express sunucu (helmet, CORS, rate limiter) + merkezi hata yönetimi
-│   ├── setup-db.js            # Otomatik veritabanı kurulumu
+│   ├── setup-db.js            # Migration + seed ile veritabanı kurulumu
+│   ├── run-migrations.js      # Migration runner (_migrations tracking)
 │   ├── eslint.config.js        # ESLint yapılandırması
 │   ├── jest.config.js          # Jest yapılandırması
 │   ├── .env.example            # Ortam değişkeni şablonu
@@ -73,7 +77,7 @@ Eco_campus/
 │   └── package.json
 ├── mobile/
 │   ├── app/
-│   │   ├── _layout.tsx        # Auth guard + Stack navigator
+│   │   ├── _layout.tsx        # Stack navigator
 │   │   ├── login.tsx          # Giriş ekranı
 │   │   ├── register.tsx       # Kayıt ekranı
 │   │   ├── edit-product.tsx   # İlan düzenleme formu (useLocalSearchParams ile veri alır)
@@ -169,7 +173,7 @@ npx expo start
 # Expo Go uygulamasıyla QR kodu okutun
 ```
 
-> 📱 **Not:** Mobil uygulama açıldığında auth guard sizi giriş ekranına yönlendirir. `test@university.edu` / `test123` ile giriş yapabilir veya "Kayıt ol" linkinden yeni hesap oluşturabilirsiniz. Giriş sonrası ilanları görüntüleyebilir, silebilir, "İlan Ekle" tab'ından yeni ilan verebilir ve "Profil" tab'ından istatistiklerinizi görebilirsiniz.
+> 📱 **Not:** Mobil uygulama login-first yaklaşımıyla açılır — önce giriş ekranı gelir. `test@university.edu` / `test123` ile giriş yapabilir veya "Kayıt ol" linkinden yeni hesap oluşturabilirsiniz. Giriş sonrası ilanları görüntüleyebilir, silebilir, "İlan Ekle" tab'ından yeni ilan verebilir ve "Profil" tab'ından istatistiklerinizi görebilirsiniz.
 
 ---
 
