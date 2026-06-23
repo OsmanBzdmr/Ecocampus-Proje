@@ -1,58 +1,38 @@
-import { StyleSheet, TouchableOpacity, Text, Alert } from 'react-native';
-import { router } from 'expo-router';
+import { StyleSheet, ScrollView } from 'react-native';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
-import { removeToken } from '@/services/auth';
 
 export default function AboutScreen() {
-  const handleLogout = () => {
-    Alert.alert(
-      'Çıkış Yap',
-      'Oturumunuzu kapatmak istediğinize emin misiniz?',
-      [
-        { text: 'İptal', style: 'cancel' },
-        {
-          text: 'Çıkış Yap',
-          style: 'destructive',
-          onPress: async () => {
-            await removeToken();
-            router.replace('/login');
-          },
-        },
-      ]
-    );
-  };
-
   return (
-    <ThemedView style={styles.container}>
-      <ThemedText type="title">EcoCampus</ThemedText>
-      <ThemedText>Sürdürülebilir Kampüs Pazaryeri 🌿</ThemedText>
-      <ThemedText style={styles.sub}>
-        Öğrencilerin eşya paylaştığı, israfı azaltan bir platform.
-      </ThemedText>
+    <ScrollView>
+      <ThemedView style={styles.container}>
+        <ThemedText type="title" style={styles.title}>EcoCampus</ThemedText>
+        <ThemedText type="subtitle">Sürdürülebilir Kampüs Pazaryeri</ThemedText>
 
-      <TouchableOpacity style={styles.logoutBtn} onPress={handleLogout}>
-        <Text style={styles.logoutText}>Çıkış Yap</Text>
-      </TouchableOpacity>
-    </ThemedView>
+        <ThemedText style={styles.section}>🌿 Hakkında</ThemedText>
+        <ThemedText style={styles.body}>
+          EcoCampus, öğrencilerin ikinci el eşya, ders materyali ve ihtiyaç fazlası ürünleri
+          kolayca paylaşabildiği bir kampüs içi pazaryeridir. İsrafı azaltmak ve
+          öğrenciler arasında dayanışmayı artırmak için tasarlanmıştır.
+        </ThemedText>
+
+        <ThemedText style={styles.section}>♻️ Nasıl Çalışır?</ThemedText>
+        <ThemedText style={styles.body}>
+          • İlan ekle: Satmak veya bağışlamak istediğin ürünleri ekle.{'\n'}
+          • Keşfet: Diğer öğrencilerin ilanlarına göz at.{'\n'}
+          • Bağış: Fiyatı 0 TL olan ilanlar bağış olarak işaretlenir.
+        </ThemedText>
+
+        <ThemedText style={styles.version}>v1.0.0</ThemedText>
+      </ThemedView>
+    </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, alignItems: 'center', justifyContent: 'center', padding: 20, gap: 12 },
-  sub: { textAlign: 'center', opacity: 0.7 },
-  logoutBtn: {
-    marginTop: 40,
-    backgroundColor: '#fef2f2',
-    paddingHorizontal: 32,
-    paddingVertical: 14,
-    borderRadius: 12,
-    borderWidth: 1,
-    borderColor: '#fecaca',
-  },
-  logoutText: {
-    color: '#dc2626',
-    fontSize: 16,
-    fontWeight: '600',
-  },
+  container: { flex: 1, padding: 24, gap: 8 },
+  title: { marginBottom: 4 },
+  section: { fontSize: 16, fontWeight: '600', marginTop: 20 },
+  body: { opacity: 0.8, lineHeight: 24 },
+  version: { marginTop: 40, opacity: 0.4, fontSize: 12, textAlign: 'center' },
 });

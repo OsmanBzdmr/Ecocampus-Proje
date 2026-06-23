@@ -19,6 +19,7 @@
 - 📱 **Tam Mobil Destek** — Expo ile giriş, kayıt, ilan ekleme/düzenleme/silme, pull-to-refresh, auth guard ve güvenli token yönetimi (expo-secure-store)
 - 🛡️ **Güvenlik Sertleştirmesi** — Helmet güvenlik header'ları, genel ve auth'a özel rate limiting (brute-force koruması), tüm girdiler için sunucu taraflı doğrulama, kısıtlı CORS
 - ✅ **Test Edilmiş Backend** — Jest + Supertest ile auth ve ürün uçları için otomatik testler, ESLint ile kod kalitesi kontrolü
+- 👤 **Profil Sayfası** — Kullanıcı bilgileri, üyelik tarihi, kendi ilanlarının listesi ve istatistikler (web + mobil)
 - 🎨 **Modern UI** — Tailwind CSS ile responsive tasarım, toast bildirimleri, loading animasyonları
 
 ---
@@ -62,12 +63,13 @@ Eco_campus/
 │   │   ├── components/
 │   │   │   ├── LoginPage.jsx      # Giriş formu (auth guard)
 │   │   │   ├── RegisterPage.jsx   # Kayıt formu (validasyonlu)
-│   │   │   ├── Dashboard.jsx      # Ana panel — sidebar, arama/filtre/sayfalama, düzenleme state'i
+│   │   │   ├── Dashboard.jsx      # Ana panel — sidebar (Dashboard/İlanlarım/Profil), arama/filtre/sayfalama
 │   │   │   ├── ProductForm.jsx    # İlan ekleme/düzenleme formu (editingProduct prop'u ile iki mod)
 │   │   │   ├── ProductTable.jsx   # Tablo/kart görünümü, düzenleme/silme butonları
 │   │   │   ├── StatsCard.jsx      # İstatistik kartları
+│   │   │   ├── ProfilePage.jsx    # Profil sayfası — avatar, istatistikler, kendi ilanları
 │   │   │   └── Toast.jsx          # Bildirim bileşeni (başarı/hata)
-│   │   ├── services/api.js   # Axios API katmanı (7 endpoint: CRUD + auth + kategori)
+│   │   ├── services/api.js   # Axios API katmanı (8 endpoint: CRUD + auth + kategori + profil)
 │   └── package.json
 ├── mobile/
 │   ├── app/
@@ -80,9 +82,10 @@ Eco_campus/
 │   │       ├── _layout.tsx    # Tab navigator (İlanlar, İlan Ekle, Hakkında)
 │   │       ├── index.tsx      # İlan listesi (silme, düzenleme, pull-to-refresh)
 │   │       ├── add-product.tsx# İlan ekleme formu
-│   │       └── explore.tsx    # Hakkında + çıkış butonu
+│   │       ├── explore.tsx    # Hakkında (uygulama bilgisi)
+│   │       └── profile.tsx    # Profil ekranı — avatar, istatistikler, ilanlar, çıkış
 │   ├── services/
-│   │   ├── api.ts             # Axios API katmanı (7 endpoint: CRUD + auth + kategori)
+│   │   ├── api.ts             # Axios API katmanı (8 endpoint: CRUD + auth + kategori + profil)
 │   │   └── auth.ts            # Token saklama (expo-secure-store)
 │   ├── constants/theme.ts     # Web ile uyumlu eco renk paleti
 └── README.md
@@ -173,6 +176,7 @@ npx expo start
 | POST | `/api/products` | Yeni ilan ekle | ✅ |
 | PUT | `/api/products/:id` | İlanı güncelle (sadece sahibi) | ✅ |
 | DELETE | `/api/products/:id` | İlan sil (sadece sahibi) | ✅ |
+| GET | `/api/auth/me` | Giriş yapan kullanıcının profil + istatistik + ilanları | ✅ |
 | GET | `/api/categories` | Kategorileri getir | — |
 
 > `GET /api/products` geriye dönük uyumluluk için varsayılan olarak düz bir dizi döner; `page`/`limit` gönderildiğinde sayfalama devreye girer ve toplam kayıt/sayfa bilgisi `X-Total-Count`, `X-Page`, `X-Limit`, `X-Total-Pages` response header'larında döner. Ek parametreler: `?search=kelime` (başlık/açıklamada arama), `?category_id=N` (kategori filtresi), `?sort=title&order=asc` (sıralama).
@@ -207,7 +211,7 @@ AUTH_RATE_LIMIT_MAX=10
 
 `CORS_ORIGIN` virgülle ayrılmış birden fazla origin alır; Vite `--host` ile başlatıldığında `127.0.0.1` üzerinden de erişilebildiği için her ikisini de eklemeniz önerilir. Rate limit değerleri test ortamında (`NODE_ENV=test`) otomatik devre dışı kalır.
 
-> **Web için:** `web/.env` dosyasında `VITE_API_URL=http://localhost:5000` tanımlıdır. Backend farklı bir portta çalışıyorsa bu değeri güncelleyin. Vite 5173 doluysa otomatik 5174'e geçer.
+> **Web için:** Vite proxy kullanılıyor (`vite.config.js` → `server.proxy`). `/api/*` istekleri otomatik olarak `http://localhost:5000`'e yönlendirilir — `web/.env` dosyasına gerek yoktur. Backend farklı bir portta çalışıyorsa `vite.config.js`'deki proxy hedefini güncelleyin.
 
 ---
 
