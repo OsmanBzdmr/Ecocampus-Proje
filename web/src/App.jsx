@@ -4,7 +4,7 @@ import RegisterPage from './components/RegisterPage';
 import Dashboard from './components/Dashboard';
 
 function App() {
-  const [token, setToken] = useState(localStorage.getItem('token'));
+  const [token, setToken] = useState(null);
   const [authView, setAuthView] = useState('login');
 
   const handleLogout = () => {
