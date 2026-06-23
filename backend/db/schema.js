@@ -1,74 +1,16 @@
-const bcrypt = require('bcryptjs');
+const fs = require('fs');
+const path = require('path');
+const { seedDemoData } = require('./seed');
 
 async function createSchema(db) {
-  await db.query(`
-    CREATE TABLE IF NOT EXISTS users (
-      id SERIAL PRIMARY KEY,
-      username VARCHAR(50) NOT NULL,
-      email VARCHAR(100) UNIQUE NOT NULL,
-      password TEXT NOT NULL,
-      created_at TIMESTAMP DEFAULT NOW()
-    )
-  `);
+  const migrationsDir = path.join(__dirname, '..', 'migrations');
+  const files = fs.readdirSync(migrationsDir)
+    .filter(f => f.endsWith('.sql'))
+    .sort();
 
-  await db.query(`
-    CREATE TABLE IF NOT EXISTS categories (
-      id SERIAL PRIMARY KEY,
-      name VARCHAR(50) NOT NULL,
-      icon VARCHAR(50)
-    )
-  `);
-
-  await db.query(`
-    CREATE TABLE IF NOT EXISTS products (
-      id SERIAL PRIMARY KEY,
-      title VARCHAR(100) NOT NULL,
-      price NUMERIC(10,2) DEFAULT 0,
-      description TEXT,
-      image_url TEXT,
-      user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
-      category_id INTEGER REFERENCES categories(id),
-      created_at TIMESTAMP DEFAULT NOW()
-    )
-  `);
-}
-
-async function seedDemoData(db) {
-  const existingCategories = await db.query('SELECT COUNT(*)::int as cnt FROM categories');
-  if (existingCategories.rows[0].cnt === 0) {
-    await db.query('INSERT INTO categories (name, icon) VALUES ($1, $2)', ['Ders Materyalleri', 'book']);
-    await db.query('INSERT INTO categories (name, icon) VALUES ($1, $2)', ['Elektronik', 'laptop']);
-    await db.query('INSERT INTO categories (name, icon) VALUES ($1, $2)', ['Eşya', 'home']);
-  }
-
-  const existingUsers = await db.query('SELECT COUNT(*)::int as cnt FROM users');
-  if (existingUsers.rows[0].cnt === 0) {
-    const hashedPassword = bcrypt.hashSync('test123', 10);
-    await db.query(
-      'INSERT INTO users (username, email, password) VALUES ($1, $2, $3)',
-      ['testuser', 'test@university.edu', hashedPassword]
-    );
-  }
-
-  const existingProducts = await db.query('SELECT COUNT(*)::int as cnt FROM products');
-  if (existingProducts.rows[0].cnt === 0) {
-    const userResult = await db.query('SELECT id FROM users WHERE email = $1', ['test@university.edu']);
-    const userId = userResult.rows[0].id;
-    const catResult = await db.query('SELECT id FROM categories ORDER BY id');
-    const cats = catResult.rows.map(r => r.id);
-
-    await db.query(
-      'INSERT INTO products (title, price, description, image_url, user_id, category_id) VALUES ($1, $2, $3, $4, $5, $6)',
-      ['Kullanılmış Laptop', 500, 'Dell laptop, çalışıyor', 'https://via.placeholder.com/300', userId, cats[1]]
-    );
-    await db.query(
-      'INSERT INTO products (title, price, description, image_url, user_id, category_id) VALUES ($1, $2, $3, $4, $5, $6)',
-      ['Bağış: Fizik Ders Notları', 0, 'Bedava dağıtılıyor', 'https://via.placeholder.com/300', userId, cats[0]]
-    );
-    await db.query(
-      'INSERT INTO products (title, price, description, image_url, user_id, category_id) VALUES ($1, $2, $3, $4, $5, $6)',
-      ['USB Kablo', 25, 'Type-C kablo', 'https://via.placeholder.com/300', userId, cats[1]]
-    );
+  for (const file of files) {
+    const sql = fs.readFileSync(path.join(migrationsDir, file), 'utf8');
+    await db.query(sql);
   }
 }
 
