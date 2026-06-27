@@ -1,13 +1,13 @@
 const express = require('express');
+const path = require('path');
 const cors = require('cors');
 const helmet = require('helmet');
-require('dotenv').config({ path: require('path').join(__dirname, '.env') });
+require('dotenv').config({ path: path.join(__dirname, '.env') });
 
 if (!process.env.JWT_SECRET) {
   console.error('HATA: JWT_SECRET ortam değişkeni tanımlı değil. .env dosyanızı kontrol edin (.env.example üzerinden oluşturabilirsiniz).');
   process.exit(1);
 }
-
 const productRoutes = require('./routes/productRoutes');
 const authRoutes = require('./routes/authRoutes');
 const categoryRoutes = require('./routes/categoryRoutes');
@@ -36,6 +36,7 @@ app.use(cors({
 }));
 
 app.use(express.json());
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 // Tüm API için genel rate limiter; auth uçları kendi içinde daha sıkı bir
 // limit olan authLimiter'ı ayrıca kullanır (bkz. authRoutes.js).

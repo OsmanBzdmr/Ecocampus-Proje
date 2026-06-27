@@ -10,8 +10,10 @@ export default function ProductForm({ token, editingProduct, onProductAdded, onC
     price: '',
     description: '',
     image_url: '',
-    category_id: ''
+    category_id: '',
+    status: 'active',
   });
+  const [imageFile, setImageFile] = useState(null);
   const [loading, setLoading] = useState(false);
   const [toast, setToast] = useState(null);
   const isEditing = !!editingProduct;
@@ -34,8 +36,10 @@ export default function ProductForm({ token, editingProduct, onProductAdded, onC
         price: editingProduct.price?.toString() || '',
         description: editingProduct.description || '',
         image_url: editingProduct.image_url || '',
-        category_id: editingProduct.category_id?.toString() || ''
+        category_id: editingProduct.category_id?.toString() || '',
+        status: editingProduct.status || 'active',
       });
+      setImageFile(null);
     } else if (categories.length > 0) {
       setForm((prev) => ({
         ...prev,
@@ -47,23 +51,32 @@ export default function ProductForm({ token, editingProduct, onProductAdded, onC
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (!form.title || !form.price || !form.image_url) {
-      setToast({ type: 'error', message: 'Lütfen tüm alanları doldurunuz' });
+    if (!form.title || !form.price) {
+      setToast({ type: 'error', message: 'Lütfen gerekli alanları doldurunuz' });
       return;
     }
 
     setLoading(true);
 
     try {
+      const fd = new FormData();
+      fd.append('title', form.title);
+      fd.append('price', form.price);
+      if (form.description) fd.append('description', form.description);
+      if (form.image_url && !imageFile) fd.append('image_url', form.image_url);
+      if (form.category_id) fd.append('category_id', form.category_id);
+      if (isEditing && form.status) fd.append('status', form.status);
+      if (imageFile) fd.append('image', imageFile);
+
       if (isEditing) {
-        await updateProductApi(editingProduct.id, form, token);
-        setToast({ type: 'success', message: '✅ İlan başarıyla güncellendi!' });
+        await updateProductApi(editingProduct.id, fd, token);
+        setToast({ type: 'success', message: 'İlan başarıyla güncellendi!' });
       } else {
-        await addProductApi(form, token);
+        await addProductApi(fd, token);
         const isDonation = parseFloat(form.price) === 0;
         setToast({
           type: 'success',
-          message: isDonation ? '✨ Bağış başarıyla eklendi!' : '✅ Ürün başarıyla eklendi!'
+          message: isDonation ? 'Bağış başarıyla eklendi!' : 'Ürün başarıyla eklendi!'
         });
       }
 
@@ -72,8 +85,10 @@ export default function ProductForm({ token, editingProduct, onProductAdded, onC
         price: '',
         description: '',
         image_url: '',
-        category_id: categories.length > 0 ? categories[0].id : ''
+        category_id: categories.length > 0 ? categories[0].id : '',
+        status: 'active',
       });
+      setImageFile(null);
 
       onProductAdded();
     } catch (error) {
@@ -177,16 +192,40 @@ export default function ProductForm({ token, editingProduct, onProductAdded, onC
 
           <div>
             <label className="block text-sm font-semibold text-gray-700 mb-2">
-              Görsel URL
+              Görsel
             </label>
+            <input
+              type="file"
+              accept="image/jpeg,image/png,image/gif,image/webp"
+              onChange={(e) => setImageFile(e.target.files[0])}
+              className="w-full px-4 py-2.5 rounded-lg border border-gray-300 focus:ring-2 focus:ring-eco-500 focus:border-transparent outline-none transition file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:bg-eco-50 file:text-eco-700 file:font-semibold hover:file:bg-eco-100"
+            />
+            <p className="text-xs text-gray-500 mt-1">JPG, PNG, GIF veya WEBP (max 5MB). Veya URL girmek isterseniz:</p>
             <input
               type="url"
               value={form.image_url}
-              onChange={(e) => setForm({ ...form, image_url: e.target.value })}
+              onChange={(e) => { setForm({ ...form, image_url: e.target.value }); setImageFile(null); }}
               placeholder="https://example.com/image.jpg"
-              className="w-full px-4 py-2.5 rounded-lg border border-gray-300 focus:ring-2 focus:ring-eco-500 focus:border-transparent outline-none transition"
+              className="w-full px-4 py-2.5 rounded-lg border border-gray-300 focus:ring-2 focus:ring-eco-500 focus:border-transparent outline-none transition mt-2"
             />
           </div>
+
+          {isEditing && (
+            <div>
+              <label className="block text-sm font-semibold text-gray-700 mb-2">
+                Durum
+              </label>
+              <select
+                value={form.status}
+                onChange={(e) => setForm({ ...form, status: e.target.value })}
+                className="w-full px-4 py-2.5 rounded-lg border border-gray-300 focus:ring-2 focus:ring-eco-500 focus:border-transparent outline-none transition bg-white"
+              >
+                <option value="active">Aktif</option>
+                <option value="reserved">Rezerve</option>
+                <option value="sold">Satıldı</option>
+              </select>
+            </div>
+          )}
 
           <div className="flex gap-3">
             {isEditing && (

@@ -94,10 +94,10 @@ export default function ProfileScreen() {
           <Text style={styles.statValue}>{profile.stats.donationListings}</Text>
           <Text style={styles.statLabel}>Bağış</Text>
         </View>
-        <View style={styles.statBox}>
-          <Text style={styles.statValue}>{profile.stats.totalValue} TL</Text>
-          <Text style={styles.statLabel}>Toplam Değer</Text>
-        </View>
+          <View style={styles.statBox}>
+            <Text style={styles.statValue}>{profile.stats.totalValue} ₺</Text>
+            <Text style={styles.statLabel}>Toplam Değer</Text>
+          </View>
       </View>
 
       {/* Listings */}
@@ -113,13 +113,29 @@ export default function ProfileScreen() {
               <View style={styles.listingInfo}>
                 <Text style={styles.listingTitle}>{item.title}</Text>
                 <Text style={styles.listingPrice}>
-                  {item.price === 0 ? 'Bağış' : `${item.price} TL`}
+                  {item.price === 0 ? 'Bağış' : `${item.price} ₺`}
                 </Text>
               </View>
-              <View style={[styles.badge, item.price > 0 ? styles.badgeActive : styles.badgeDonation]}>
-                <Text style={[styles.badgeText, item.price > 0 ? styles.badgeTextActive : styles.badgeTextDonation]}>
-                  {item.price > 0 ? 'Aktif' : 'Bağış'}
-                </Text>
+              <View style={styles.listingBadgeRow}>
+                <View style={[styles.badge, item.price > 0 ? styles.badgeActive : styles.badgeDonation]}>
+                  <Text style={[styles.badgeText, item.price > 0 ? styles.badgeTextActive : styles.badgeTextDonation]}>
+                    {item.price > 0 ? 'Aktif' : 'Bağış'}
+                  </Text>
+                </View>
+                {item.status && (
+                  <View style={[styles.badge,
+                    item.status === 'active' ? styles.badgeActive :
+                    item.status === 'reserved' ? { backgroundColor: '#fef3c7' } : { backgroundColor: '#fef2f2' }
+                  ]}>
+                    <Text style={[styles.badgeText,
+                      item.status === 'active' ? styles.badgeTextActive :
+                      item.status === 'reserved' ? { color: '#92400e' } : { color: '#dc2626' }
+                    ]}>
+                      {item.status === 'active' ? 'Aktif' :
+                       item.status === 'reserved' ? 'Rezerve' : 'Satıldı'}
+                    </Text>
+                  </View>
+                )}
               </View>
             </View>
           ))}
@@ -315,5 +331,9 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontSize: 16,
     fontWeight: '600',
+  },
+  listingBadgeRow: {
+    flexDirection: 'row',
+    gap: 6,
   },
 });

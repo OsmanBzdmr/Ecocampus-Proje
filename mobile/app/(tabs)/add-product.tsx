@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { StyleSheet, Text, TextInput, TouchableOpacity, View, ActivityIndicator, ScrollView, KeyboardAvoidingView, Platform } from 'react-native';
+import { StyleSheet, Text, TextInput, TouchableOpacity, View, ActivityIndicator, ScrollView, KeyboardAvoidingView, Platform, Image } from 'react-native';
 import { router } from 'expo-router';
-import { addProduct, fetchCategories, Category } from '@/services/api';
+import * as ImagePicker from 'expo-image-picker';
+import { addProduct, addProductWithImage, fetchCategories, Category } from '@/services/api';
 import { getToken } from '@/services/auth';
 
 export default function AddProductScreen() {
@@ -9,6 +10,7 @@ export default function AddProductScreen() {
   const [title, setTitle] = useState('');
   const [price, setPrice] = useState('');
   const [description, setDescription] = useState('');
+  const [imageUri, setImageUri] = useState<string | null>(null);
   const [image_url, setImageUrl] = useState('');
   const [category_id, setCategoryId] = useState<number | null>(null);
   const [loading, setLoading] = useState(false);
@@ -20,6 +22,18 @@ export default function AddProductScreen() {
       if (res.data.length > 0) setCategoryId(res.data[0].id);
     }).catch(() => setError('Kategoriler yüklenemedi'));
   }, []);
+
+  const pickImage = async () => {
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ['images'],
+      allowsEditing: true,
+      quality: 0.8,
+    });
+    if (!result.canceled) {
+      setImageUri(result.assets[0].uri);
+      setImageUrl('');
+    }
+  };
 
   const handleSubmit = async () => {
     if (!title || !price) {
@@ -34,13 +48,24 @@ export default function AddProductScreen() {
         router.replace('/login');
         return;
       }
-      await addProduct({
-        title,
-        price: parseFloat(price),
-        description: description || undefined,
-        image_url: image_url || undefined,
-        category_id: category_id || undefined,
-      }, token);
+
+      if (imageUri) {
+        const fd = new FormData();
+        fd.append('title', title);
+        fd.append('price', String(parseFloat(price)));
+        if (description) fd.append('description', description);
+        if (category_id) fd.append('category_id', String(category_id));
+        fd.append('image', { uri: imageUri, type: 'image/jpeg', name: 'photo.jpg' } as any);
+        await addProductWithImage(fd, token);
+      } else {
+        await addProduct({
+          title,
+          price: parseFloat(price),
+          description: description || undefined,
+          image_url: image_url || undefined,
+          category_id: category_id || undefined,
+        }, token);
+      }
       router.replace('/(tabs)');
     } catch (err: any) {
       setError(err.response?.data?.message || 'Ürün eklenirken hata oluştu');
@@ -84,7 +109,7 @@ export default function AddProductScreen() {
           ))}
         </View>
 
-        <Text style={styles.label}>Fiyat (TL)</Text>
+        <Text style={styles.label}>Fiyat (₺)</Text>
         <TextInput
           style={styles.input}
           placeholder="0 (Bağış) veya 100"
@@ -93,7 +118,7 @@ export default function AddProductScreen() {
           onChangeText={setPrice}
           keyboardType="decimal-pad"
         />
-        <Text style={styles.hint}>Fiyat 0 TL ise otomatik bağış olarak işaretlenir</Text>
+        <Text style={styles.hint}>Fiyat 0 ₺ ise otomatik bağış olarak işaretlenir</Text>
 
         <Text style={styles.label}>Açıklama</Text>
         <TextInput
@@ -106,13 +131,26 @@ export default function AddProductScreen() {
           numberOfLines={3}
         />
 
-        <Text style={styles.label}>Görsel URL</Text>
+        <Text style={styles.label}>Görsel</Text>
+        <TouchableOpacity style={styles.imagePicker} onPress={pickImage}>
+          {imageUri ? (
+            <Image source={{ uri: imageUri }} style={styles.imagePreview} />
+          ) : (
+            <Text style={styles.imagePickerText}>Galeriden Seç</Text>
+          )}
+        </TouchableOpacity>
+        {imageUri && (
+          <TouchableOpacity onPress={() => { setImageUri(null); setImageUrl(''); }}>
+            <Text style={styles.removeImage}>Kaldır</Text>
+          </TouchableOpacity>
+        )}
+        <Text style={styles.hint}>Veya URL girin:</Text>
         <TextInput
           style={styles.input}
           placeholder="https://example.com/image.jpg"
           placeholderTextColor="#94a3b8"
           value={image_url}
-          onChangeText={setImageUrl}
+          onChangeText={(t) => { setImageUrl(t); setImageUri(null); }}
           autoCapitalize="none"
         />
 
@@ -226,5 +264,32 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontSize: 16,
     fontWeight: '600',
+  },
+  imagePicker: {
+    backgroundColor: '#fff',
+    borderWidth: 1,
+    borderColor: '#d1d5db',
+    borderStyle: 'dashed',
+    borderRadius: 12,
+    padding: 20,
+    alignItems: 'center',
+    justifyContent: 'center',
+    minHeight: 120,
+  },
+  imagePickerText: {
+    color: '#6b7280',
+    fontSize: 15,
+  },
+  imagePreview: {
+    width: '100%',
+    height: 200,
+    borderRadius: 8,
+  },
+  removeImage: {
+    color: '#dc2626',
+    fontSize: 13,
+    fontWeight: '600',
+    textAlign: 'center',
+    marginTop: 4,
   },
 });

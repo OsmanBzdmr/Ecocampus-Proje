@@ -25,16 +25,16 @@ async function seedDemoData(db) {
     const cats = catResult.rows.map(r => r.id);
 
     await db.query(
-      'INSERT INTO products (title, price, description, image_url, user_id, category_id) VALUES ($1, $2, $3, $4, $5, $6)',
-      ['Kullanılmış Laptop', 500, 'Dell laptop, çalışıyor', 'https://via.placeholder.com/300', userId, cats[1]]
+      'INSERT INTO products (title, price, description, image_url, user_id, category_id, status) VALUES ($1, $2, $3, $4, $5, $6, $7)',
+      ['Kullanılmış Laptop', 500, 'Dell laptop, çalışıyor', 'https://via.placeholder.com/300', userId, cats[1], 'active']
     );
     await db.query(
-      'INSERT INTO products (title, price, description, image_url, user_id, category_id) VALUES ($1, $2, $3, $4, $5, $6)',
-      ['Bağış: Fizik Ders Notları', 0, 'Bedava dağıtılıyor', 'https://via.placeholder.com/300', userId, cats[0]]
+      'INSERT INTO products (title, price, description, image_url, user_id, category_id, status) VALUES ($1, $2, $3, $4, $5, $6, $7)',
+      ['Bağış: Fizik Ders Notları', 0, 'Bedava dağıtılıyor', 'https://via.placeholder.com/300', userId, cats[0], 'active']
     );
     await db.query(
-      'INSERT INTO products (title, price, description, image_url, user_id, category_id) VALUES ($1, $2, $3, $4, $5, $6)',
-      ['USB Kablo', 25, 'Type-C kablo', 'https://via.placeholder.com/300', userId, cats[1]]
+      'INSERT INTO products (title, price, description, image_url, user_id, category_id, status) VALUES ($1, $2, $3, $4, $5, $6, $7)',
+      ['USB Kablo', 25, 'Type-C kablo', 'https://via.placeholder.com/300', userId, cats[1], 'reserved']
     );
   }
 }

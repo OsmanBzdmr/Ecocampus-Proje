@@ -59,6 +59,18 @@ function createMockDb() {
         const value = String(params[idx] ?? '').replace(/%/g, '').toLowerCase();
         return (row) => String(row[field] ?? '').toLowerCase().includes(value);
       }
+      const gteMatch = part.match(/^(\w+)\s*>=\s*\?$/);
+      if (gteMatch) {
+        const field = gteMatch[1];
+        const value = Number(params[idx]);
+        return (row) => Number(row[field]) >= value;
+      }
+      const lteMatch = part.match(/^(\w+)\s*<=\s*\?$/);
+      if (lteMatch) {
+        const field = lteMatch[1];
+        const value = Number(params[idx]);
+        return (row) => Number(row[field]) <= value;
+      }
       const eqMatch = part.match(/^(\w+)\s*=\s*\?$/);
       if (eqMatch) {
         const field = eqMatch[1];
@@ -76,6 +88,14 @@ function createMockDb() {
   }
 
   function parseSelect(sql) {
+    // JOIN'li sorgular için: SELECT ... FROM t1 JOIN t2 ON ... WHERE ...
+    const joinMatch = sql.match(
+      /^SELECT (.+?) FROM (\w+)\s+JOIN\s+\w+\s+ON\s+.+?(?: WHERE (.+?))?(?: ORDER BY (.+?))?(?: (LIMIT \? OFFSET \?))?$/i
+    );
+    if (joinMatch) {
+      const [, colsRaw, table, whereSql, orderBy, limitClause] = joinMatch;
+      return { colsRaw: colsRaw.trim(), table, whereSql, orderBy, hasLimit: !!limitClause };
+    }
     const m = sql.match(
       /^SELECT (.+?) FROM (\w+)(?: WHERE (.+?))?(?: ORDER BY (.+?))?(?: (LIMIT \? OFFSET \?))?$/i
     );
@@ -214,8 +234,8 @@ function createMockDb() {
       // tipleri/kısıtları mock için önemli değildir.
       const statements = sql.split(';');
       statements.forEach((s) => {
-        const m = s.match(/CREATE TABLE IF NOT EXISTS (\w+)/i);
-        if (m) ensureTable(m[1]);
+        const createMatch = s.match(/CREATE TABLE IF NOT EXISTS (\w+)/i);
+        if (createMatch) ensureTable(createMatch[1]);
       });
     },
     pragma() {
@@ -228,9 +248,13 @@ function createMockDb() {
     async query(sql, params = []) {
       const sqliteSql = pgToSqlite(sql);
 
-      // DDL (CREATE TABLE) — exec'e yönlendir
+      // DDL (CREATE TABLE / ALTER TABLE) — exec'e yönlendir
       if (/CREATE\s+TABLE/i.test(sqliteSql.trim())) {
         this.exec(sqliteSql);
+        return { rows: [], rowCount: 0 };
+      }
+      if (/ALTER\s+TABLE/i.test(sqliteSql.trim())) {
+        // mock'ta sütun ekleme işlemini atla (şema exec'te zaten kurulur)
         return { rows: [], rowCount: 0 };
       }
 

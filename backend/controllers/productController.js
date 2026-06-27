@@ -1,6 +1,6 @@
 const db = require('../config/db');
 
-function buildWhere(params, search, category_id) {
+function buildWhere(params, search, category_id, min_price, max_price, status) {
   const clauses = [];
   let idx = 0;
 
@@ -16,15 +16,48 @@ function buildWhere(params, search, category_id) {
     params.push(category_id);
   }
 
+  if (min_price !== undefined && min_price !== '') {
+    idx++;
+    clauses.push(`price >= $${idx}`);
+    params.push(parseFloat(min_price));
+  }
+
+  if (max_price !== undefined && max_price !== '') {
+    idx++;
+    clauses.push(`price <= $${idx}`);
+    params.push(parseFloat(max_price));
+  }
+
+  if (status) {
+    idx++;
+    clauses.push(`status = $${idx}`);
+    params.push(status);
+  }
+
   return clauses.length > 0 ? 'WHERE ' + clauses.join(' AND ') : '';
 }
 
+exports.getProductById = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const product = (await db.query(
+      'SELECT p.*, u.username, c.name as category_name FROM products p JOIN users u ON p.user_id = u.id JOIN categories c ON p.category_id = c.id WHERE p.id = $1',
+      [id]
+    )).rows[0];
+
+    if (!product) return res.status(404).json({ message: 'Ürün bulunamadı' });
+    res.json(product);
+  } catch (err) {
+    next(err);
+  }
+};
+
 exports.getProducts = async (req, res, next) => {
   try {
-    const { search, category_id, page, limit, sort, order } = req.query;
+    const { search, category_id, min_price, max_price, status, page, limit, sort, order } = req.query;
 
     const params = [];
-    const whereSQL = buildWhere(params, search, category_id);
+    const whereSQL = buildWhere(params, search, category_id, min_price, max_price, status);
 
     const allowedSortCols = ['id', 'title', 'price', 'created_at'];
     const sortCol = allowedSortCols.includes(sort) ? sort : 'id';
@@ -63,7 +96,8 @@ exports.getProducts = async (req, res, next) => {
 exports.createProduct = async (req, res, next) => {
   try {
     const user_id = req.user_id;
-    const { title, price, description, image_url, category_id } = req.body;
+    const { title, price, description, category_id } = req.body;
+    const image_url = req.file ? `/uploads/${req.file.filename}` : req.body.image_url || null;
 
     const result = await db.query(
       'INSERT INTO products (title, price, description, image_url, category_id, user_id) VALUES ($1, $2, $3, $4, $5, $6) RETURNING *',
@@ -79,7 +113,7 @@ exports.updateProduct = async (req, res, next) => {
   try {
     const user_id = req.user_id;
     const { id } = req.params;
-    const { title, price, description, image_url, category_id } = req.body;
+    const { title, price, description, image_url, category_id, status } = req.body;
 
     const product = (await db.query('SELECT * FROM products WHERE id = $1', [id])).rows[0];
     if (!product) return res.status(404).json({ message: 'Ürün bulunamadı' });
@@ -94,6 +128,12 @@ exports.updateProduct = async (req, res, next) => {
     if (description !== undefined) { idx++; setClauses.push(`description = $${idx}`); params.push(description); }
     if (image_url !== undefined) { idx++; setClauses.push(`image_url = $${idx}`); params.push(image_url); }
     if (category_id !== undefined) { idx++; setClauses.push(`category_id = $${idx}`); params.push(category_id); }
+    if (status !== undefined) { idx++; setClauses.push(`status = $${idx}`); params.push(status); }
+
+    // uploaded file overrides image_url
+    if (req.file) {
+      idx++; setClauses.push(`image_url = $${idx}`); params.push(`/uploads/${req.file.filename}`);
+    }
 
     if (setClauses.length === 0) {
       return res.status(400).json({ message: 'Güncellenecek alan bulunamadı' });

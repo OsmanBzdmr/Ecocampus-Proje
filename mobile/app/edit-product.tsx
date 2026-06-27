@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { StyleSheet, Text, TextInput, TouchableOpacity, View, ActivityIndicator, ScrollView, KeyboardAvoidingView, Platform } from 'react-native';
+import { StyleSheet, Text, TextInput, TouchableOpacity, View, ActivityIndicator, ScrollView, KeyboardAvoidingView, Platform, Image } from 'react-native';
 import { useLocalSearchParams, router } from 'expo-router';
-import { updateProduct, fetchCategories, Category, Product } from '@/services/api';
+import * as ImagePicker from 'expo-image-picker';
+import { updateProduct, updateProductWithImage, fetchCategories, Category, Product } from '@/services/api';
 import { getToken } from '@/services/auth';
 
 export default function EditProductScreen() {
@@ -12,8 +13,10 @@ export default function EditProductScreen() {
   const [title, setTitle] = useState(product.title || '');
   const [price, setPrice] = useState(product.price?.toString() || '');
   const [description, setDescription] = useState(product.description || '');
+  const [imageUri, setImageUri] = useState<string | null>(null);
   const [image_url, setImageUrl] = useState(product.image_url || '');
   const [category_id, setCategoryId] = useState<number | null>(product.category_id);
+  const [status, setStatus] = useState(product.status || 'active');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
@@ -23,6 +26,18 @@ export default function EditProductScreen() {
       if (!category_id && res.data.length > 0) setCategoryId(res.data[0].id);
     }).catch(() => setError('Kategoriler yüklenemedi'));
   }, []);
+
+  const pickImage = async () => {
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ['images'],
+      allowsEditing: true,
+      quality: 0.8,
+    });
+    if (!result.canceled) {
+      setImageUri(result.assets[0].uri);
+      setImageUrl('');
+    }
+  };
 
   const handleSubmit = async () => {
     if (!title || !price) {
@@ -37,13 +52,26 @@ export default function EditProductScreen() {
         router.replace('/login');
         return;
       }
-      await updateProduct(product.id, {
-        title,
-        price: parseFloat(price),
-        description: description || undefined,
-        image_url: image_url || undefined,
-        category_id: category_id || undefined,
-      }, token);
+
+      if (imageUri) {
+        const fd = new FormData();
+        fd.append('title', title);
+        fd.append('price', String(parseFloat(price)));
+        if (description) fd.append('description', description);
+        if (category_id) fd.append('category_id', String(category_id));
+        fd.append('status', status);
+        fd.append('image', { uri: imageUri, type: 'image/jpeg', name: 'photo.jpg' } as any);
+        await updateProductWithImage(product.id, fd, token);
+      } else {
+        await updateProduct(product.id, {
+          title,
+          price: parseFloat(price),
+          description: description || undefined,
+          image_url: image_url || undefined,
+          category_id: category_id || undefined,
+          status,
+        }, token);
+      }
       router.replace('/(tabs)');
     } catch (err: any) {
       setError(err.response?.data?.message || 'Güncelleme sırasında hata oluştu');
@@ -87,7 +115,7 @@ export default function EditProductScreen() {
           ))}
         </View>
 
-        <Text style={styles.label}>Fiyat (TL)</Text>
+        <Text style={styles.label}>Fiyat (₺)</Text>
         <TextInput
           style={styles.input}
           placeholder="0 (Bağış) veya 100"
@@ -96,7 +124,7 @@ export default function EditProductScreen() {
           onChangeText={setPrice}
           keyboardType="decimal-pad"
         />
-        <Text style={styles.hint}>Fiyat 0 TL ise otomatik bağış olarak işaretlenir</Text>
+        <Text style={styles.hint}>Fiyat 0 ₺ ise otomatik bağış olarak işaretlenir</Text>
 
         <Text style={styles.label}>Açıklama</Text>
         <TextInput
@@ -109,15 +137,43 @@ export default function EditProductScreen() {
           numberOfLines={3}
         />
 
-        <Text style={styles.label}>Görsel URL</Text>
+        <Text style={styles.label}>Görsel</Text>
+        <TouchableOpacity style={styles.imagePicker} onPress={pickImage}>
+          {imageUri ? (
+            <Image source={{ uri: imageUri }} style={styles.imagePreview} />
+          ) : (
+            <Text style={styles.imagePickerText}>Galeriden Seç</Text>
+          )}
+        </TouchableOpacity>
+        {imageUri && (
+          <TouchableOpacity onPress={() => { setImageUri(null); setImageUrl(product.image_url || ''); }}>
+            <Text style={styles.removeImage}>Kaldır</Text>
+          </TouchableOpacity>
+        )}
+        <Text style={styles.hint}>Veya URL girin:</Text>
         <TextInput
           style={styles.input}
           placeholder="https://example.com/image.jpg"
           placeholderTextColor="#94a3b8"
           value={image_url}
-          onChangeText={setImageUrl}
+          onChangeText={(t) => { setImageUrl(t); setImageUri(null); }}
           autoCapitalize="none"
         />
+
+        <Text style={styles.label}>Durum</Text>
+        <View style={styles.categoryRow}>
+          {['active', 'reserved', 'sold'].map((s) => (
+            <TouchableOpacity
+              key={s}
+              style={[styles.categoryChip, status === s && styles.categoryChipActive]}
+              onPress={() => setStatus(s)}
+            >
+              <Text style={[styles.categoryChipText, status === s && styles.categoryChipTextActive]}>
+                {s === 'active' ? 'Aktif' : s === 'reserved' ? 'Rezerve' : 'Satıldı'}
+              </Text>
+            </TouchableOpacity>
+          ))}
+        </View>
 
         <TouchableOpacity
           style={[styles.button, loading && styles.buttonDisabled]}
@@ -250,5 +306,32 @@ const styles = StyleSheet.create({
     color: '#22c55e',
     fontSize: 16,
     fontWeight: '600',
+  },
+  imagePicker: {
+    backgroundColor: '#fff',
+    borderWidth: 1,
+    borderColor: '#d1d5db',
+    borderStyle: 'dashed',
+    borderRadius: 12,
+    padding: 20,
+    alignItems: 'center',
+    justifyContent: 'center',
+    minHeight: 120,
+  },
+  imagePickerText: {
+    color: '#6b7280',
+    fontSize: 15,
+  },
+  imagePreview: {
+    width: '100%',
+    height: 200,
+    borderRadius: 8,
+  },
+  removeImage: {
+    color: '#dc2626',
+    fontSize: 13,
+    fontWeight: '600',
+    textAlign: 'center',
+    marginTop: 4,
   },
 });

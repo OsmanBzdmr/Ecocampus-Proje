@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { StyleSheet, Text, View, FlatList, Image, SafeAreaView, Platform, StatusBar, TouchableOpacity, Alert, ActivityIndicator } from 'react-native';
 import { router } from 'expo-router';
-import { fetchProducts, deleteProduct, Product } from '@/services/api';
+import { fetchProducts, deleteProduct, Product, getProductById } from '@/services/api';
 import { getToken, getUserIdFromToken } from '@/services/auth';
 
 export default function App() {
@@ -35,6 +35,10 @@ export default function App() {
     setRefreshing(false);
   }, []);
 
+  const handleViewDetail = (product: Product) => {
+    router.push({ pathname: '/detail' as any, params: { id: product.id.toString() } });
+  };
+
   const handleDelete = (product: Product) => {
     Alert.alert(
       'İlanı Sil',
@@ -63,30 +67,44 @@ export default function App() {
     const isOwner = userId !== null && item.user_id === userId;
 
     return (
-      <View style={styles.card}>
-        <Image source={{ uri: item.image_url || 'https://via.placeholder.com/150' }} style={styles.image} />
-        <View style={styles.info}>
-          <View style={styles.titleRow}>
-            <Text style={styles.title}>{item.title}</Text>
-            {isOwner && (
-              <View style={styles.ownerActions}>
-                <TouchableOpacity
-                  onPress={() => router.push({ pathname: '/edit-product' as any, params: { product: JSON.stringify(item) } })}
-                  style={styles.editBtn}
-                >
-                  <Text style={styles.editBtnText}>Düzenle</Text>
-                </TouchableOpacity>
-                <TouchableOpacity onPress={() => handleDelete(item)} style={styles.deleteBtn}>
-                  <Text style={styles.deleteBtnText}>Sil</Text>
-                </TouchableOpacity>
-              </View>
-            )}
+      <TouchableOpacity onPress={() => handleViewDetail(item)} activeOpacity={0.8}>
+        <View style={styles.card}>
+          <Image source={{ uri: item.image_url || 'https://via.placeholder.com/150' }} style={styles.image} />
+          <View style={styles.info}>
+            <View style={styles.titleRow}>
+              <Text style={styles.title}>{item.title}</Text>
+              {isOwner && (
+                <View style={styles.ownerActions}>
+                  <TouchableOpacity
+                    onPress={() => router.push({ pathname: '/edit-product' as any, params: { product: JSON.stringify(item) } })}
+                    style={styles.editBtn}
+                  >
+                    <Text style={styles.editBtnText}>Düzenle</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity onPress={() => handleDelete(item)} style={styles.deleteBtn}>
+                    <Text style={styles.deleteBtnText}>Sil</Text>
+                  </TouchableOpacity>
+                </View>
+              )}
+            </View>
+            <View style={styles.priceRow}>
+              <Text style={styles.price}>
+                {item.price == 0 ? 'Bağış' : `${item.price} ₺`}
+              </Text>
+              {item.status && (
+                <Text style={[
+                  styles.statusBadge,
+                  item.status === 'active' ? styles.statusActive :
+                  item.status === 'reserved' ? styles.statusReserved : styles.statusSold
+                ]}>
+                  {item.status === 'active' ? 'Aktif' :
+                   item.status === 'reserved' ? 'Rezerve' : 'Satıldı'}
+                </Text>
+              )}
+            </View>
           </View>
-          <Text style={styles.price}>
-            {item.price == 0 ? '❤️ BAĞIŞ' : `${item.price} TL`}
-          </Text>
         </View>
-      </View>
+      </TouchableOpacity>
     );
   };
 
@@ -247,5 +265,31 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: '#9ca3af',
     marginTop: 4,
+  },
+  priceRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    marginTop: 5,
+  },
+  statusBadge: {
+    fontSize: 12,
+    fontWeight: '600',
+    paddingHorizontal: 8,
+    paddingVertical: 2,
+    borderRadius: 8,
+    overflow: 'hidden',
+  },
+  statusActive: {
+    backgroundColor: '#dcfce7',
+    color: '#15803d',
+  },
+  statusReserved: {
+    backgroundColor: '#fef3c7',
+    color: '#92400e',
+  },
+  statusSold: {
+    backgroundColor: '#fef2f2',
+    color: '#dc2626',
   },
 });

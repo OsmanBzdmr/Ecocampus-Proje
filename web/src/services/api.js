@@ -3,11 +3,12 @@ import axios from 'axios';
 const API = axios.create();
 
 export const fetchProducts = (params = {}) => API.get('/api/products', { params });
+export const getProductById = (id) => API.get(`/api/products/${id}`);
 export const addProduct = (data, token) => API.post('/api/products', data, {
-  headers: { Authorization: token }
+  headers: { Authorization: token, 'Content-Type': 'multipart/form-data' }
 });
 export const updateProduct = (id, data, token) => API.put(`/api/products/${id}`, data, {
-  headers: { Authorization: token }
+  headers: { Authorization: token, 'Content-Type': 'multipart/form-data' }
 });
 export const deleteProduct = (id, token) => API.delete(`/api/products/${id}`, {
   headers: { Authorization: token }

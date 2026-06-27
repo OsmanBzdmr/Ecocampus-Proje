@@ -47,9 +47,6 @@ const createProductValidation = [
   body('description')
     .optional()
     .trim(),
-  body('image_url')
-    .optional()
-    .trim(),
   handleValidationErrors,
 ];
 
@@ -71,6 +68,9 @@ const updateProductValidation = [
   body('image_url')
     .optional()
     .trim(),
+  body('status')
+    .optional()
+    .isIn(['active', 'sold', 'reserved']).withMessage('Durum active, sold veya reserved olmalıdır'),
   handleValidationErrors,
 ];
 
@@ -87,6 +87,15 @@ const listProductsValidation = [
   query('search')
     .optional()
     .trim(),
+  query('min_price')
+    .optional()
+    .isFloat({ min: 0 }).withMessage('Minimum fiyat 0 veya pozitif olmalıdır'),
+  query('max_price')
+    .optional()
+    .isFloat({ min: 0 }).withMessage('Maksimum fiyat 0 veya pozitif olmalıdır'),
+  query('status')
+    .optional()
+    .isIn(['active', 'sold', 'reserved']).withMessage('Durum active, sold veya reserved olmalıdır'),
   query('sort')
     .optional()
     .isIn(['id', 'title', 'price', 'created_at']).withMessage('Geçerli sıralama alanı: id, title, price, created_at'),

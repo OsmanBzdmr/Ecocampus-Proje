@@ -18,6 +18,10 @@ export interface Product {
   image_url: string | null;
   user_id: number;
   category_id: number;
+  status?: string;
+  username?: string;
+  category_name?: string;
+  created_at?: string;
 }
 
 export interface Category {
@@ -37,17 +41,26 @@ export const login = (credentials: { email: string; password: string }) =>
 export const register = (data: { username: string; email: string; password: string }) =>
   API.post<{ id: number; username: string; email: string }>('/api/auth/register', data);
 
-export const fetchProducts = () =>
-  API.get<Product[]>('/api/products');
+export const fetchProducts = (params?: Record<string, any>) =>
+  API.get<Product[]>('/api/products', { params });
 
-export const addProduct = (data: { title: string; price: number; description?: string; image_url?: string; category_id?: number }, token: string) =>
+export const getProductById = (id: number) =>
+  API.get<Product>(`/api/products/${id}`);
+
+export const addProduct = (data: any, token: string) =>
   API.post<Product>('/api/products', data, { headers: { Authorization: token } });
+
+export const addProductWithImage = (formData: FormData, token: string) =>
+  API.post<Product>('/api/products', formData, { headers: { Authorization: token } });
 
 export const updateProduct = (
   id: number,
-  data: { title?: string; price?: number; description?: string; image_url?: string; category_id?: number },
+  data: any,
   token: string
 ) => API.put<Product>(`/api/products/${id}`, data, { headers: { Authorization: token } });
+
+export const updateProductWithImage = (id: number, formData: FormData, token: string) =>
+  API.put<Product>(`/api/products/${id}`, formData, { headers: { Authorization: token } });
 
 export const deleteProduct = (id: number, token: string) =>
   API.delete<{ message: string }>(`/api/products/${id}`, { headers: { Authorization: token } });

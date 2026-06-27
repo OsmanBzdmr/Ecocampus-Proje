@@ -89,7 +89,7 @@ export default function ProfilePage({ token, onLogout }) {
           </div>
           <div className="bg-gray-50 rounded-xl p-6">
             <p className="text-gray-500 text-sm">Toplam Değer</p>
-            <p className="text-3xl font-bold text-gray-900 mt-1">{stats.totalValue} TL</p>
+            <p className="text-3xl font-bold text-gray-900 mt-1">{stats.totalValue} ₺</p>
           </div>
         </div>
 
@@ -103,22 +103,34 @@ export default function ProfilePage({ token, onLogout }) {
           ) : (
             <div className="space-y-3">
               {listings.map((item) => (
-                <div key={item.id} className="bg-white rounded-xl shadow-sm p-4 flex items-center justify-between">
+                  <div key={item.id} className="bg-white rounded-xl shadow-sm p-4 flex items-center justify-between">
                   <div>
                     <p className="font-semibold text-gray-900">{item.title}</p>
                     <p className="text-sm text-gray-500">
-                      {item.price == 0 ? 'Bağış' : `${item.price} TL`}
+                      {item.price == 0 ? 'Bağış' : `${item.price} ₺`}
                     </p>
                   </div>
-                  <span
-                    className={`px-3 py-1 rounded-full text-xs font-semibold ${
-                      item.price > 0
-                        ? 'bg-green-100 text-green-700'
-                        : 'bg-amber-100 text-amber-700'
-                    }`}
-                  >
-                    {item.price > 0 ? 'Aktif' : 'Bağış'}
-                  </span>
+                  <div className="flex items-center gap-2">
+                    <span
+                      className={`px-3 py-1 rounded-full text-xs font-semibold ${
+                        item.price > 0
+                          ? 'bg-green-100 text-green-700'
+                          : 'bg-amber-100 text-amber-700'
+                      }`}
+                    >
+                      {item.price > 0 ? 'Aktif' : 'Bağış'}
+                    </span>
+                    {item.status && (
+                      <span className={`px-3 py-1 rounded-full text-xs font-semibold ${
+                        item.status === 'active' ? 'bg-green-100 text-green-700' :
+                        item.status === 'reserved' ? 'bg-amber-100 text-amber-700' :
+                        'bg-red-100 text-red-700'
+                      }`}>
+                        {item.status === 'active' ? 'Aktif' :
+                         item.status === 'reserved' ? 'Rezerve' : 'Satıldı'}
+                      </span>
+                    )}
+                  </div>
                 </div>
               ))}
             </div>

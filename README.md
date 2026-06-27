@@ -10,13 +10,16 @@
 - 🔒 **Güvenli Kimlik Doğrulama** — Bcrypt şifre hash'leme + JWT oturum yönetimi, merkezi auth middleware
 - 👤 **Kayıt ve Giriş** — Web üzerinden yeni hesap oluşturma (register) ve giriş yapma
 - 📱 **Çoklu Platform** — React web dashboard + React Native mobil uygulama
-- 🗂️ **Kategori Sistemi** — İlanlar kategorilere ayrılır, web tarafında kategori seçimi ve listede kategori etiketi gösterilir
-- 💚 **Bağış Sistemi** — Fiyatı 0 TL olan ürünler otomatik olarak bağış olarak işaretlenir
+- 🗂️ **Kategori Sistemi** — İlanlar kategorilere ayrılır, kategori seçimi ve etiket gösterimi
+- 💚 **Bağış Sistemi** — Fiyatı 0 olan ürünler otomatik bağış olarak işaretlenir
+- 🖼️ **Görsel Yükleme** — Dosya seçici ile resim yükleme (JPG/PNG/GIF/WEBP, max 5MB) veya URL girme
+- 🔍 **Arama, Filtreleme ve Sayfalama** — Metin arama, kategori filtresi, fiyat aralığı, durum filtresi, sıralama, sayfalama
+- 📄 **Ürün Detay Sayfası** — Web'de modal, mobil'de ayrı ekran; resim, kullanıcı, kategori, durum, açıklama
+- 🏷️ **Ürün Durumu** — Aktif / Rezerve / Satıldı badge'leri, web ve mobilde gösterim
 - 📊 **Dashboard Analitik** — Toplam ilan, satılık ürün ve bağış sayılarını anlık takip edin
-- ✏️ **İlan Düzenleme** — Web ve mobil üzerinden mevcut ilanlarınızı düzenleyin, form otomatik doldurulur
+- ✏️ **İlan Düzenleme** — Web ve mobil üzerinden mevcut ilanlarınızı düzenleyin, durum değiştirin
 - 🗑️ **İlan Yönetimi** — Kendi ilanlarınızı oluşturun, düzenleyin ve silin (yetkisiz işlemler backend tarafından reddedilir)
-- 🔍 **Arama, Filtreleme ve Sayfalama** — Web'de arama kutusu + kategori dropdown'ı, 10 ürün/sayfa sayfalama kontrolleri (Önceki/Sonraki ve sayfa numaraları), backend'de sortalama, eski istemcilerle geriye dönük uyumlu
-- 📱 **Tam Mobil Destek** — Expo ile giriş, kayıt, ilan ekleme/düzenleme/silme, pull-to-refresh, profil sayfası, auth guard ve güvenli token yönetimi (expo-secure-store)
+- 📱 **Tam Mobil Destek** — Expo ile giriş, kayıt, ilan ekleme/düzenleme/silme, galeriden görsel seçme, pull-to-refresh, profil sayfası, auth guard ve güvenli token yönetimi (expo-secure-store)
 - 🛡️ **Güvenlik Sertleştirmesi** — Helmet güvenlik header'ları, genel ve auth'a özel rate limiting (brute-force koruması), tüm girdiler için sunucu taraflı doğrulama, kısıtlı CORS
 - ✅ **Test Edilmiş Backend** — Jest + Supertest ile auth ve ürün uçları için otomatik testler, ESLint ile kod kalitesi kontrolü
 - 👤 **Profil Sayfası** — Kullanıcı bilgileri, üyelik tarihi, kendi ilanlarının listesi ve istatistikler (web + mobil)
@@ -35,6 +38,7 @@
 | Web Frontend | React 19, Tailwind CSS v3, Axios, Lucide React |
 | Mobil | React Native (Expo) |
 | Build Tool | Vite |
+| Görsel Yükleme | Multer |
 
 ---
 
@@ -43,55 +47,68 @@
 ```
 Eco_campus/
 ├── backend/
-│   ├── config/db.js          # PostgreSQL bağlantısı (Pool)
-│   ├── controllers/          # İş mantığı
+│   ├── config/db.js              # PostgreSQL bağlantısı (Pool)
+│   ├── controllers/
+│   │   ├── authController.js     # Kayıt, giriş, profil
+│   │   ├── productController.js  # Ürün CRUD + detay + filtreleme
+│   │   └── categoryController.js # Kategori listeleme
 │   ├── db/
-│   │   ├── seed.js           # Demo veri (kullanıcı, kategori, ürün)
-│   │   └── schema.js         # Testler için migration SQL'lerini okur
-│   ├── migrations/           # SQL migration dosyaları
+│   │   ├── seed.js               # Demo veri (kullanıcı, kategori, ürün)
+│   │   └── schema.js             # Migration SQL'lerini okur
+│   ├── migrations/
+│   │   ├── 001_create_users.sql
+│   │   ├── 002_create_categories.sql
+│   │   ├── 003_create_products.sql
+│   │   └── 004_add_product_status.sql  # status kolonu (active/sold/reserved)
 │   ├── middleware/
-│   │   ├── authMiddleware.js       # JWT doğrulama (merkezi)
-│   │   ├── rateLimiter.js          # Genel + auth'a özel rate limiting
-│   │   └── validationMiddleware.js # express-validator ile girdi doğrulama
-│   ├── routes/                # API endpoint'leri
-│   ├── tests/                 # Jest + Supertest testleri (mock veritabanı ile)
-│   ├── server.js              # Express sunucu (helmet, CORS, rate limiter) + merkezi hata yönetimi
-│   ├── setup-db.js            # Migration + seed ile veritabanı kurulumu
-│   ├── run-migrations.js      # Migration runner (_migrations tracking)
-│   ├── eslint.config.js        # ESLint yapılandırması
-│   ├── jest.config.js          # Jest yapılandırması
-│   ├── .env.example            # Ortam değişkeni şablonu
-│   └── package.json
+│   │   ├── authMiddleware.js           # JWT doğrulama (merkezi)
+│   │   ├── rateLimiter.js              # Genel + auth'a özel rate limiting
+│   │   └── validationMiddleware.js     # express-validator ile girdi doğrulama
+│   ├── routes/
+│   │   ├── authRoutes.js       # /api/auth/*
+│   │   ├── productRoutes.js    # /api/products/* (Multer upload dahil)
+│   │   └── categoryRoutes.js   # /api/categories
+│   ├── tests/
+│   │   ├── auth.test.js        # Auth testleri (9 test)
+│   │   ├── products.test.js    # Ürün testleri (13 test)
+│   │   └── helpers/            # Mock DB, seed, auth yardımcıları
+│   ├── uploads/                # Yüklenen görseller (statik serve edilir)
+│   ├── server.js               # Express sunucu (helmet, CORS, rate limiter)
+│   ├── setup-db.js             # Migration + seed ile veritabanı kurulumu
+│   ├── run-migrations.js       # Migration runner (_migrations tracking)
+│   └── .env.example
 ├── web/
 │   ├── src/
 │   │   ├── components/
-│   │   │   ├── LoginPage.jsx      # Giriş formu (auth guard)
-│   │   │   ├── RegisterPage.jsx   # Kayıt formu (validasyonlu)
-│   │   │   ├── Dashboard.jsx      # Ana panel — sidebar (Dashboard/İlanlarım/Profil), arama/filtre/sayfalama
-│   │   │   ├── ProductForm.jsx    # İlan ekleme/düzenleme formu (editingProduct prop'u ile iki mod)
-│   │   │   ├── ProductTable.jsx   # Tablo/kart görünümü, düzenleme/silme butonları
-│   │   │   ├── StatsCard.jsx      # İstatistik kartları
-│   │   │   ├── ProfilePage.jsx    # Profil sayfası — avatar, istatistikler, kendi ilanları
-│   │   │   └── Toast.jsx          # Bildirim bileşeni (başarı/hata)
-│   │   ├── services/api.js   # Axios API katmanı (8 endpoint: CRUD + auth + kategori + profil)
-│   └── package.json
+│   │   │   ├── LoginPage.jsx          # Giriş formu
+│   │   │   ├── RegisterPage.jsx       # Kayıt formu
+│   │   │   ├── Dashboard.jsx          # Ana panel + arama/filtre/sayfalama
+│   │   │   ├── ProductForm.jsx        # İlan ekleme/düzenleme (file input + status)
+│   │   │   ├── ProductTable.jsx       # Tablo/kart görünümü + durum badge
+│   │   │   ├── ProductDetail.jsx      # Ürün detay modalı
+│   │   │   ├── StatsCard.jsx          # İstatistik kartları
+│   │   │   ├── ProfilePage.jsx        # Profil sayfası
+│   │   │   └── Toast.jsx              # Bildirim bileşeni
+│   │   └── services/api.js            # Axios API katmanı
+│   └── vite.config.js                 # Proxy ile backend yönlendirmesi
 ├── mobile/
 │   ├── app/
-│   │   ├── _layout.tsx        # Stack navigator
-│   │   ├── login.tsx          # Giriş ekranı
-│   │   ├── register.tsx       # Kayıt ekranı
-│   │   ├── edit-product.tsx   # İlan düzenleme formu (useLocalSearchParams ile veri alır)
+│   │   ├── _layout.tsx            # Stack navigator
+│   │   ├── login.tsx              # Giriş ekranı
+│   │   ├── register.tsx           # Kayıt ekranı
+│   │   ├── detail.tsx             # Ürün detay ekranı
+│   │   ├── edit-product.tsx       # İlan düzenleme (status + görsel)
 │   │   ├── modal.tsx
 │   │   └── (tabs)/
-│   │       ├── _layout.tsx    # Tab navigator (İlanlar, İlan Ekle, Hakkında, Profil)
-│   │       ├── index.tsx      # İlan listesi (silme, düzenleme, pull-to-refresh)
-│   │       ├── add-product.tsx# İlan ekleme formu
-│   │       ├── explore.tsx    # Hakkında (uygulama bilgisi)
-│   │       └── profile.tsx    # Profil ekranı — avatar, istatistikler, ilanlar, çıkış
+│   │       ├── _layout.tsx        # Tab navigator
+│   │       ├── index.tsx          # İlan listesi + durum badge
+│   │       ├── add-product.tsx    # İlan ekleme (galeriden görsel seç)
+│   │       ├── explore.tsx        # Hakkında
+│   │       └── profile.tsx        # Profil ekranı
 │   ├── services/
-│   │   ├── api.ts             # Axios API katmanı (8 endpoint: CRUD + auth + kategori + profil)
-│   │   └── auth.ts            # Token saklama (expo-secure-store)
-│   ├── constants/theme.ts     # Web ile uyumlu eco renk paleti
+│   │   ├── api.ts                 # Axios API katmanı (FormData desteği)
+│   │   └── auth.ts                # Token yönetimi (expo-secure-store)
+│   └── constants/theme.ts         # Eco renk paleti
 └── README.md
 ```
 
@@ -114,12 +131,10 @@ cd Eco_campus
 ### 2. PostgreSQL'i başlat (Docker)
 
 ```bash
-docker run -d --name ecocampus-pg -e POSTGRES_PASSWORD=postgres -e POSTGRES_DB=ecocampus -p 5432:5432 postgres:16
+docker run -d --name ecocampus-db -e POSTGRES_PASSWORD=postgres -e POSTGRES_DB=ecocampus -p 5432:5432 postgres:16
 ```
 
 ### 3. Veritabanını kur
-
-`backend/` klasöründe:
 
 ```bash
 cd backend
@@ -130,7 +145,7 @@ node setup-db.js
 
 `setup-db.js` otomatik olarak veritabanını, tabloları ve test verilerini oluşturur.
 
-> ⚠️ **Önemli:** `.env` dosyasındaki `JWT_SECRET` artık zorunludur — boş veya eksik bırakılırsa sunucu güvenlik gereği başlamayı reddeder. Rastgele güçlü bir değer üretmek için:
+> ⚠️ **Önemli:** `.env` dosyasındaki `JWT_SECRET` zorunludur — boş veya eksik bırakılırsa sunucu güvenlik gereği başlamayı reddeder. Rastgele güçlü bir değer üretmek için:
 > ```bash
 > node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
 > ```
@@ -139,8 +154,6 @@ node setup-db.js
 **Test kullanıcısı:**
 - Email: `test@university.edu`
 - Şifre: `test123`
-
-İstersen web arayüzündeki **"Kayıt ol"** linkinden de yeni bir hesap oluşturabilirsin.
 
 ### 4. Backend'i başlat
 
@@ -173,7 +186,7 @@ npx expo start
 # Expo Go uygulamasıyla QR kodu okutun
 ```
 
-> 📱 **Not:** Mobil uygulama login-first yaklaşımıyla açılır — önce giriş ekranı gelir. `test@university.edu` / `test123` ile giriş yapabilir veya "Kayıt ol" linkinden yeni hesap oluşturabilirsiniz. Giriş sonrası ilanları görüntüleyebilir, silebilir, "İlan Ekle" tab'ından yeni ilan verebilir ve "Profil" tab'ından istatistiklerinizi görebilirsiniz.
+> 📱 **Not:** Mobil uygulama login-first yaklaşımıyla açılır. Giriş sonrası ilanları görüntüleyebilir, filtreleyebilir, galeriden görsel seçerek ilan ekleyebilirsiniz.
 
 ---
 
@@ -183,16 +196,26 @@ npx expo start
 |---|---|---|---|
 | POST | `/api/auth/register` | Yeni kullanıcı kaydı (rate limit'li) | — |
 | POST | `/api/auth/login` | Giriş yap, JWT döner (rate limit'li) | — |
-| GET | `/api/products` | İlanları getir — `search`, `category_id`, `page`, `limit` query parametrelerini destekler | — |
-| POST | `/api/products` | Yeni ilan ekle | ✅ |
-| PUT | `/api/products/:id` | İlanı güncelle (sadece sahibi) | ✅ |
-| DELETE | `/api/products/:id` | İlan sil (sadece sahibi) | ✅ |
 | GET | `/api/auth/me` | Giriş yapan kullanıcının profil + istatistik + ilanları | ✅ |
 | GET | `/api/categories` | Kategorileri getir | — |
+| GET | `/api/products` | İlanları getir (filtreleme + sayfalama + sıralama) | — |
+| GET | `/api/products/:id` | Tek ürün detayı (username + category_name ile) | — |
+| POST | `/api/products` | Yeni ilan ekle (multipart/form-data ile görsel yükleme) | ✅ |
+| PUT | `/api/products/:id` | İlanı güncelle — kısmi güncelleme, status dahil | ✅ |
+| DELETE | `/api/products/:id` | İlan sil (sadece sahibi) | ✅ |
 
-> `GET /api/products` geriye dönük uyumluluk için varsayılan olarak düz bir dizi döner; `page`/`limit` gönderildiğinde sayfalama devreye girer ve toplam kayıt/sayfa bilgisi `X-Total-Count`, `X-Page`, `X-Limit`, `X-Total-Pages` response header'larında döner. Ek parametreler: `?search=kelime` (başlık/açıklamada arama), `?category_id=N` (kategori filtresi), `?sort=title&order=asc` (sıralama).
+> **GET /api/products** parametreleri:
+> - `search` — başlık/açıklamada metin arama
+> - `category_id` — kategori filtresi
+> - `min_price` / `max_price` — fiyat aralığı
+> - `status` — durum filtresi (`active`, `sold`, `reserved`)
+> - `page` / `limit` — sayfalama (limit 1-100 arası)
+> - `sort` — sıralama (`id`, `title`, `price`, `created_at`)
+> - `order` — sıralama yönü (`asc`, `desc`)
+>
+> Sayfalama aktifken `X-Total-Count`, `X-Page`, `X-Limit`, `X-Total-Pages` response header'larında döner.
 
-> `PUT /api/products/:id` isteği sadece ilan sahibi tarafından yapılabilir (403 yetkisiz). Sadece gönderilen alanlar güncellenir — kısmi güncelleme desteklenir. Hiçbir alan gönderilmezse 400 döner.
+> **POST/PUT /api/products:** `Content-Type: multipart/form-data` ile görsel dosyası (`image` alanı) gönderilebilir. Dosya gönderilmezse `image_url` alanı kullanılır.
 
 ---
 
@@ -207,13 +230,9 @@ PORT=5000
 CORS_ORIGIN=http://localhost:5173,http://127.0.0.1:5173
 ```
 
-`JWT_SECRET` tanımlı değilse sunucu başlangıçta hata verip kapanır — varsayılan/sabit bir secret ile asla çalışmaz. Rastgele bir değer üretmek için kurulum adımındaki komutu kullanın. Projeye eklenen `.env` dosyası önceden oluşturulmuş güçlü bir rastgele değer içerir, production'da mutlaka kendiniz yenileyin.
+`JWT_SECRET` tanımlı değilse sunucu başlangıçta hata verip kapanır. Rastgele bir değer üretmek için kurulum adımındaki komutu kullanın. Projeye eklenen `.env` dosyası önceden oluşturulmuş güçlü bir rastgele değer içerir, production'da mutlaka kendiniz yenileyin.
 
-`CORS_ORIGIN` virgülle ayrılmış birden fazla origin alır; Vite `--host` ile başlatıldığında `127.0.0.1` üzerinden de erişilebildiği için her ikisini de eklemeniz önerilir.
-
-> **Web için:** Vite proxy kullanılır (`vite.config.js` → `server.proxy`). `/api/*` istekleri otomatik olarak `http://localhost:5000`'e yönlendirilir. Frontend'i çalıştırmadan önce backend'in ayakta olduğundan emin olun.
-
----
+> **Web için:** Vite proxy kullanılır (`vite.config.js` → `server.proxy`). `/api/*` istekleri otomatik olarak `http://localhost:5000`'e yönlendirilir.
 
 ## 📝 Lisans
 

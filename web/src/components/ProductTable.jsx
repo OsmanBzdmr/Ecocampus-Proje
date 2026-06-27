@@ -1,7 +1,7 @@
 import React from 'react';
 import { Trash2, Pencil, AlertCircle } from 'lucide-react';
 
-export default function ProductTable({ products, onDelete, onEdit, loading, categories = [] }) {
+export default function ProductTable({ products, onDelete, onEdit, onViewDetail, loading, categories = [] }) {
   const getCategoryName = (categoryId) => {
     const cat = categories.find((c) => c.id === categoryId);
     return cat ? cat.name : '—';
@@ -44,6 +44,7 @@ export default function ProductTable({ products, onDelete, onEdit, loading, cate
                 <th className="text-left py-3 px-4 font-semibold text-gray-700">Başlık</th>
                 <th className="text-left py-3 px-4 font-semibold text-gray-700">Kategori</th>
                 <th className="text-left py-3 px-4 font-semibold text-gray-700">Fiyat</th>
+                <th className="text-left py-3 px-4 font-semibold text-gray-700">Durum</th>
                 <th className="text-left py-3 px-4 font-semibold text-gray-700">İşlem</th>
               </tr>
             </thead>
@@ -60,7 +61,12 @@ export default function ProductTable({ products, onDelete, onEdit, loading, cate
                   </td>
                   <td className="py-4 px-4">
                     <div>
-                      <p className="font-semibold text-gray-900">{product.title}</p>
+                      <button
+                        onClick={() => onViewDetail(product)}
+                        className="font-semibold text-gray-900 hover:text-eco-600 transition text-left"
+                      >
+                        {product.title}
+                      </button>
                       {product.description && (
                         <p className="text-sm text-gray-600 truncate">{product.description}</p>
                       )}
@@ -74,11 +80,21 @@ export default function ProductTable({ products, onDelete, onEdit, loading, cate
                   <td className="py-4 px-4">
                     {product.price == 0 ? (
                       <span className="inline-block bg-eco-100 text-eco-700 px-3 py-1 rounded-full text-sm font-semibold">
-                        ✨ BAĞIŞ
+                        BAĞIŞ
                       </span>
                     ) : (
-                      <span className="font-semibold text-gray-900">{product.price} TL</span>
+                      <span className="font-semibold text-gray-900">{product.price} ₺</span>
                     )}
+                  </td>
+                  <td className="py-4 px-4">
+                    <span className={`inline-block px-3 py-1 rounded-full text-xs font-semibold ${
+                      product.status === 'active' ? 'bg-green-100 text-green-700' :
+                      product.status === 'reserved' ? 'bg-amber-100 text-amber-700' :
+                      'bg-red-100 text-red-700'
+                    }`}>
+                      {product.status === 'active' ? 'Aktif' :
+                       product.status === 'reserved' ? 'Rezerve' : 'Satıldı'}
+                    </span>
                   </td>
                   <td className="py-4 px-4">
                     <div className="flex items-center gap-2">
@@ -125,11 +141,19 @@ export default function ProductTable({ products, onDelete, onEdit, loading, cate
                   )}
                   {product.price == 0 ? (
                     <span className="inline-block bg-eco-100 text-eco-700 px-2 py-1 rounded text-xs font-semibold mt-1">
-                      ✨ BAĞIŞ
+                      BAĞIŞ
                     </span>
                   ) : (
-                    <p className="text-sm font-semibold text-gray-900 mt-1">{product.price} TL</p>
+                    <p className="text-sm font-semibold text-gray-900 mt-1">{product.price} ₺</p>
                   )}
+                  <span className={`inline-block px-2 py-0.5 rounded text-xs font-semibold mt-1 ml-1 ${
+                    product.status === 'active' ? 'bg-green-100 text-green-700' :
+                    product.status === 'reserved' ? 'bg-amber-100 text-amber-700' :
+                    'bg-red-100 text-red-700'
+                  }`}>
+                    {product.status === 'active' ? 'Aktif' :
+                     product.status === 'reserved' ? 'Rezerve' : 'Satıldı'}
+                  </span>
                 </div>
               </div>
               <div className="flex gap-2">

@@ -3,6 +3,7 @@ import { LogOut, Package, Home, Leaf, Search, ChevronLeft, ChevronRight, User } 
 import { fetchProducts as fetchProductsApi, deleteProduct as deleteProductApi, fetchCategories } from '../services/api';
 import ProductForm from './ProductForm';
 import ProductTable from './ProductTable';
+import ProductDetail from './ProductDetail';
 import StatsCard from './StatsCard';
 import Toast from './Toast';
 import ProfilePage from './ProfilePage';
@@ -15,10 +16,14 @@ export default function Dashboard({ token, onLogout }) {
   const [deleting, setDeleting] = useState(false);
   const [toast, setToast] = useState(null);
   const [editingProduct, setEditingProduct] = useState(null);
+  const [detailProductId, setDetailProductId] = useState(null);
 
   // Search / filter / pagination
   const [search, setSearch] = useState('');
   const [categoryFilter, setCategoryFilter] = useState('');
+  const [minPrice, setMinPrice] = useState('');
+  const [maxPrice, setMaxPrice] = useState('');
+  const [statusFilter, setStatusFilter] = useState('');
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [totalCount, setTotalCount] = useState(0);
@@ -37,6 +42,9 @@ export default function Dashboard({ token, onLogout }) {
       const params = { page, limit };
       if (search) params.search = search;
       if (categoryFilter) params.category_id = categoryFilter;
+      if (minPrice) params.min_price = minPrice;
+      if (maxPrice) params.max_price = maxPrice;
+      if (statusFilter) params.status = statusFilter;
       const res = await fetchProductsApi(params);
       setProducts(res.data);
       setTotalPages(parseInt(res.headers['x-total-pages'] || '1', 10));
@@ -46,7 +54,7 @@ export default function Dashboard({ token, onLogout }) {
     } finally {
       setLoading(false);
     }
-  }, [search, categoryFilter, page, limit]);
+  }, [search, categoryFilter, minPrice, maxPrice, statusFilter, page, limit]);
 
   useEffect(() => {
     loadProducts();
@@ -60,6 +68,25 @@ export default function Dashboard({ token, onLogout }) {
   const handleCategoryFilter = (e) => {
     setCategoryFilter(e.target.value);
     setPage(1);
+  };
+
+  const handleMinPrice = (e) => {
+    setMinPrice(e.target.value);
+    setPage(1);
+  };
+
+  const handleMaxPrice = (e) => {
+    setMaxPrice(e.target.value);
+    setPage(1);
+  };
+
+  const handleStatusFilter = (e) => {
+    setStatusFilter(e.target.value);
+    setPage(1);
+  };
+
+  const handleViewDetail = (product) => {
+    setDetailProductId(product.id);
   };
 
   const handleEdit = (product) => {
@@ -215,7 +242,7 @@ export default function Dashboard({ token, onLogout }) {
             {activeTab === 'products' && (
               <div className="space-y-6">
                 {/* Search & Filter Bar */}
-                <div className="bg-white rounded-2xl shadow-lg p-4 md:p-6">
+                <div className="bg-white rounded-2xl shadow-lg p-4 md:p-6 space-y-4">
                   <div className="flex flex-col md:flex-row gap-4">
                     <div className="flex-1 relative">
                       <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
@@ -227,7 +254,7 @@ export default function Dashboard({ token, onLogout }) {
                         className="w-full pl-10 pr-4 py-2.5 rounded-lg border border-gray-300 focus:ring-2 focus:ring-eco-500 focus:border-transparent outline-none transition"
                       />
                     </div>
-                    <div className="md:w-56">
+                    <div className="md:w-44">
                       <select
                         value={categoryFilter}
                         onChange={handleCategoryFilter}
@@ -239,6 +266,40 @@ export default function Dashboard({ token, onLogout }) {
                         ))}
                       </select>
                     </div>
+                    <div className="md:w-40">
+                      <select
+                        value={statusFilter}
+                        onChange={handleStatusFilter}
+                        className="w-full px-4 py-2.5 rounded-lg border border-gray-300 focus:ring-2 focus:ring-eco-500 focus:border-transparent outline-none transition bg-white"
+                      >
+                        <option value="">Tüm Durumlar</option>
+                        <option value="active">Aktif</option>
+                        <option value="reserved">Rezerve</option>
+                        <option value="sold">Satıldı</option>
+                      </select>
+                    </div>
+                  </div>
+                  <div className="flex flex-col md:flex-row gap-4">
+                    <div className="md:w-48">
+                      <input
+                        type="number"
+                        value={minPrice}
+                        onChange={handleMinPrice}
+                        placeholder="Min fiyat"
+                        className="w-full px-4 py-2.5 rounded-lg border border-gray-300 focus:ring-2 focus:ring-eco-500 focus:border-transparent outline-none transition"
+                        min="0"
+                      />
+                    </div>
+                    <div className="md:w-48">
+                      <input
+                        type="number"
+                        value={maxPrice}
+                        onChange={handleMaxPrice}
+                        placeholder="Max fiyat"
+                        className="w-full px-4 py-2.5 rounded-lg border border-gray-300 focus:ring-2 focus:ring-eco-500 focus:border-transparent outline-none transition"
+                        min="0"
+                      />
+                    </div>
                   </div>
                 </div>
 
@@ -247,6 +308,7 @@ export default function Dashboard({ token, onLogout }) {
                   products={products}
                   onDelete={(id) => setConfirmDelete(id)}
                   onEdit={handleEdit}
+                  onViewDetail={handleViewDetail}
                   loading={loading}
                   categories={categories}
                 />
@@ -295,6 +357,9 @@ export default function Dashboard({ token, onLogout }) {
           </div>
         </main>
       </div>
+
+      {/* Product Detail Modal */}
+      <ProductDetail productId={detailProductId} onClose={() => setDetailProductId(null)} />
 
       {/* Delete Confirmation Modal */}
       {confirmDelete && (
