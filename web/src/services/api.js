@@ -1,6 +1,8 @@
 import axios from 'axios';
 
-const API = axios.create();
+const API = axios.create({
+  baseURL: import.meta.env.VITE_API_URL || '',
+});
 
 export const fetchProducts = (params = {}) => API.get('/api/products', { params });
 export const getProductById = (id) => API.get(`/api/products/${id}`);

@@ -44,16 +44,37 @@ function createMockDb() {
       const orMatch = cond.match(/^\((.+)\)$/);
       if (orMatch) {
         const orParts = orMatch[1].split(/\s+OR\s+/i);
-        const orChecks = orParts.map((part) => buildSingleCheck(part.trim(), paramIndex++));
+        const orChecks = orParts.map((part) => {
+          const check = buildSingleCheck(part.trim(), paramIndex);
+          if (part.includes('?')) paramIndex++;
+          return check;
+        });
         checks.push((row) => orChecks.some((fn) => fn(row)));
         continue;
       }
 
-      checks.push(buildSingleCheck(cond, paramIndex++));
+      const check = buildSingleCheck(cond, paramIndex);
+      if (cond.includes('?')) paramIndex++;
+      checks.push(check);
     }
 
+    function hasParam(p) { return p.includes('?'); }
+
     function buildSingleCheck(part, idx) {
-      const likeMatch = part.match(/^(\w+)\s+LIKE\s+\?$/i);
+      // Literal değer karşılaştırmaları (soru işareti yerine sayı)
+      const gtLit = part.match(/^(\w+)\s*>\s*(\d+(?:\.\d+)?)$/);
+      if (gtLit) return (row) => Number(row[gtLit[1]]) > Number(gtLit[2]);
+      const ltLit = part.match(/^(\w+)\s*<\s*(\d+(?:\.\d+)?)$/);
+      if (ltLit) return (row) => Number(row[ltLit[1]]) < Number(ltLit[2]);
+      const gteLit = part.match(/^(\w+)\s*>=\s*(\d+(?:\.\d+)?)$/);
+      if (gteLit) return (row) => Number(row[gteLit[1]]) >= Number(gteLit[2]);
+      const lteLit = part.match(/^(\w+)\s*<=\s*(\d+(?:\.\d+)?)$/);
+      if (lteLit) return (row) => Number(row[lteLit[1]]) <= Number(lteLit[2]);
+      const eqLit = part.match(/^(\w+)\s*=\s*(\d+(?:\.\d+)?)$/);
+      if (eqLit) return (row) => Number(row[eqLit[1]]) === Number(eqLit[2]);
+
+      // Parametreli karşılaştırmalar
+      const likeMatch = part.match(/^(\w+)\s+I?LIKE\s+\?$/i);
       if (likeMatch) {
         const field = likeMatch[1];
         const value = String(params[idx] ?? '').replace(/%/g, '').toLowerCase();
@@ -97,7 +118,7 @@ function createMockDb() {
       return { colsRaw: colsRaw.trim(), table, whereSql, orderBy, hasLimit: !!limitClause };
     }
     const m = sql.match(
-      /^SELECT (.+?) FROM (\w+)(?: WHERE (.+?))?(?: ORDER BY (.+?))?(?: (LIMIT \? OFFSET \?))?$/i
+      /^SELECT (.+?) FROM (\w+)(?:\s+\w+)?(?: WHERE (.+?))?(?: ORDER BY (.+?))?(?: (LIMIT \? OFFSET \?))?$/i
     );
     if (!m) throw new Error(`mockDb: ayrıştırılamayan SELECT: "${sql}"`);
     const [, colsRaw, table, whereSql, orderBy, limitClause] = m;
@@ -108,9 +129,15 @@ function createMockDb() {
     if (colsRaw === '*') return cloneRow(row);
     if (/^COUNT\(\*\)\s+as\s+cnt$/i.test(colsRaw)) return undefined; // ayrı ele alınır
     const cols = colsRaw.split(',').map((c) => c.trim());
+    if (cols.includes('*')) return cloneRow(row);
     const out = {};
     cols.forEach((c) => {
-      out[c] = row[c];
+      const asMatch = c.match(/^(\w+)\s+as\s+(\w+)$/i);
+      if (asMatch) {
+        out[asMatch[2]] = row[asMatch[1]];
+      } else {
+        out[c] = row[c];
+      }
     });
     return out;
   }
@@ -215,7 +242,9 @@ function createMockDb() {
   function pgToSqlite(sql) {
     const noReturns = sql.replace(/\s+RETURNING\s+.+$/i, '');
     const noCast = noReturns.replace(/::\w+/g, '');
-    return noCast.replace(/\$\d+/g, () => '?');
+    const noJoins = noCast.replace(/\s+JOIN\s+\w+\s+\w+\s+ON\s+[\w.=\s]+?(?=\s+JOIN|\s+WHERE|\s+ORDER\s+BY|\s+LIMIT|$)/gi, ' ');
+    const noAliases = noJoins.replace(/(\w+)\.(\*|\w+)/g, '$2');
+    return noAliases.replace(/\$\d+/g, () => '?');
   }
 
   function hasReturning(sql) {
@@ -254,7 +283,11 @@ function createMockDb() {
         return { rows: [], rowCount: 0 };
       }
       if (/ALTER\s+TABLE/i.test(sqliteSql.trim())) {
-        // mock'ta sütun ekleme işlemini atla (şema exec'te zaten kurulur)
+        const alterMatch = sqliteSql.trim().match(/ALTER\s+TABLE\s+(\w+)\s+ADD\s+COLUMN\s+(?:IF\s+NOT\s+EXISTS\s+)?(\w+)/i);
+        if (alterMatch) {
+          const [, tableName, colName] = alterMatch;
+          ensureTable(tableName);
+        }
         return { rows: [], rowCount: 0 };
       }
 

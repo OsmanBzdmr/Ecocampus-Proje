@@ -6,7 +6,7 @@ function buildWhere(params, search, category_id, min_price, max_price, status) {
 
   if (search) {
     idx += 2;
-    clauses.push(`(title LIKE $${idx - 1} OR description LIKE $${idx})`);
+    clauses.push(`(title ILIKE $${idx - 1} OR description ILIKE $${idx})`);
     params.push(`%${search}%`, `%${search}%`);
   }
 
@@ -73,20 +73,25 @@ exports.getProducts = async (req, res, next) => {
       const offset = (pageNum - 1) * limitNum;
 
       const products = (await db.query(
-        `SELECT * FROM products ${whereSQL} ${orderSQL} LIMIT $${params.length + 1} OFFSET $${params.length + 2}`,
+        `SELECT p.*, u.username, c.name as category_name FROM products p JOIN users u ON p.user_id = u.id JOIN categories c ON p.category_id = c.id ${whereSQL} ${orderSQL} LIMIT $${params.length + 1} OFFSET $${params.length + 2}`,
         [...params, limitNum, offset]
       )).rows;
+
+      const forSaleRow = (await db.query(`SELECT COUNT(*)::int as cnt FROM products WHERE price > 0 ${whereSQL.replace('WHERE', 'AND')}`, params)).rows[0];
+      const donationRow = (await db.query(`SELECT COUNT(*)::int as cnt FROM products WHERE price = 0 ${whereSQL.replace('WHERE', 'AND')}`, params)).rows[0];
 
       res.set({
         'X-Total-Count': total,
         'X-Page': pageNum,
         'X-Limit': limitNum,
         'X-Total-Pages': totalPages,
+        'X-For-Sale-Count': forSaleRow.cnt,
+        'X-Donation-Count': donationRow.cnt,
       });
       return res.json(products);
     }
 
-    const products = (await db.query(`SELECT * FROM products ${whereSQL} ${orderSQL}`, params)).rows;
+    const products = (await db.query(`SELECT p.*, u.username, c.name as category_name FROM products p JOIN users u ON p.user_id = u.id JOIN categories c ON p.category_id = c.id ${whereSQL} ${orderSQL}`, params)).rows;
     res.json(products);
   } catch (err) {
     next(err);

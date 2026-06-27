@@ -19,7 +19,7 @@
 - 📊 **Dashboard Analitik** — Toplam ilan, satılık ürün ve bağış sayılarını anlık takip edin
 - ✏️ **İlan Düzenleme** — Web ve mobil üzerinden mevcut ilanlarınızı düzenleyin, durum değiştirin
 - 🗑️ **İlan Yönetimi** — Kendi ilanlarınızı oluşturun, düzenleyin ve silin (yetkisiz işlemler backend tarafından reddedilir)
-- 📱 **Tam Mobil Destek** — Expo ile giriş, kayıt, ilan ekleme/düzenleme/silme, galeriden görsel seçme, pull-to-refresh, profil sayfası, auth guard ve güvenli token yönetimi (expo-secure-store)
+- 📱 **Tam Mobil Destek** — Expo ile giriş, kayıt, ilan ekleme/düzenleme/silme, galeriden görsel seçme, pull-to-refresh, profil sayfası, auth guard ve güvenli token yönetimi (expo-secure-store). Arama çubuğu (debounce), kategori/durum chip'leri, fiyat aralığı filtresi ve sonsuz kaydırma (infinite scroll) ile gelişmiş filtreleme
 - 🛡️ **Güvenlik Sertleştirmesi** — Helmet güvenlik header'ları, genel ve auth'a özel rate limiting (brute-force koruması), tüm girdiler için sunucu taraflı doğrulama, kısıtlı CORS
 - ✅ **Test Edilmiş Backend** — Jest + Supertest ile auth ve ürün uçları için otomatik testler, ESLint ile kod kalitesi kontrolü
 - 👤 **Profil Sayfası** — Kullanıcı bilgileri, üyelik tarihi, kendi ilanlarının listesi ve istatistikler (web + mobil)
@@ -101,7 +101,7 @@ Eco_campus/
 │   │   ├── modal.tsx
 │   │   └── (tabs)/
 │   │       ├── _layout.tsx        # Tab navigator
-│   │       ├── index.tsx          # İlan listesi + durum badge
+│   │       ├── index.tsx          # İlan listesi + arama/filtre chip'leri + sonsuz kaydırma
 │   │       ├── add-product.tsx    # İlan ekleme (galeriden görsel seç)
 │   │       ├── explore.tsx        # Hakkında
 │   │       └── profile.tsx        # Profil ekranı
@@ -117,7 +117,7 @@ Eco_campus/
 ## 🚀 Kurulum
 
 ### Gereksinimler
-- Node.js 16+
+- Node.js 18+
 - npm
 - Docker (PostgreSQL için) veya lokal PostgreSQL kurulumu
 
@@ -213,7 +213,7 @@ npx expo start
 > - `sort` — sıralama (`id`, `title`, `price`, `created_at`)
 > - `order` — sıralama yönü (`asc`, `desc`)
 >
-> Sayfalama aktifken `X-Total-Count`, `X-Page`, `X-Limit`, `X-Total-Pages` response header'larında döner.
+> Sayfalama aktifken `X-Total-Count`, `X-For-Sale-Count`, `X-Donation-Count`, `X-Page`, `X-Limit`, `X-Total-Pages` response header'larında döner.
 
 > **POST/PUT /api/products:** `Content-Type: multipart/form-data` ile görsel dosyası (`image` alanı) gönderilebilir. Dosya gönderilmezse `image_url` alanı kullanılır.
 

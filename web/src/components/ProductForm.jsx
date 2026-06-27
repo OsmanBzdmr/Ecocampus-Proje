@@ -163,7 +163,7 @@ export default function ProductForm({ token, editingProduct, onProductAdded, onC
 
           <div>
             <label className="block text-sm font-semibold text-gray-700 mb-2">
-              Fiyat (TL)
+              Fiyat (₺)
             </label>
             <input
               type="number"
@@ -174,7 +174,7 @@ export default function ProductForm({ token, editingProduct, onProductAdded, onC
               min="0"
               step="0.01"
             />
-            <p className="text-xs text-gray-500 mt-1">💡 Fiyat 0 TL ise otomatik olarak "Bağış" olarak işaretlenir</p>
+            <p className="text-xs text-gray-500 mt-1">💡 Fiyat 0 ₺ ise otomatik olarak "Bağış" olarak işaretlenir</p>
           </div>
 
           <div>

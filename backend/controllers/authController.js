@@ -51,7 +51,7 @@ exports.getMe = async (req, res, next) => {
 
     const totalListings = products.length;
     const donationListings = products.filter((p) => parseFloat(p.price) === 0).length;
-    const activeListings = totalListings - donationListings;
+    const activeListings = products.filter((p) => p.status === 'active').length;
     const totalValue = products.reduce((sum, p) => sum + parseFloat(p.price || 0), 0);
 
     res.json({

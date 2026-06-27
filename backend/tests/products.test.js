@@ -13,7 +13,7 @@ describe('GET /api/products', () => {
 
     expect(res.status).toBe(200);
     expect(Array.isArray(res.body)).toBe(true);
-    expect(res.body).toHaveLength(3); // seedDemoData ile eklenen 3 ürün
+    expect(res.body).toHaveLength(10); // seedDemoData ile eklenen 10 ürün
   });
 
   it('page/limit verildiğinde sayfalama header\'larını döner', async () => {
@@ -21,10 +21,10 @@ describe('GET /api/products', () => {
 
     expect(res.status).toBe(200);
     expect(res.body).toHaveLength(2);
-    expect(res.headers['x-total-count']).toBe('3');
+    expect(res.headers['x-total-count']).toBe('10');
     expect(res.headers['x-page']).toBe('1');
     expect(res.headers['x-limit']).toBe('2');
-    expect(res.headers['x-total-pages']).toBe('2');
+    expect(res.headers['x-total-pages']).toBe('5');
   });
 
   it('search parametresiyle başlık/açıklamada arama yapar', async () => {
@@ -141,6 +141,6 @@ describe('DELETE /api/products/:id', () => {
     expect(res.status).toBe(200);
 
     const listRes = await request(app).get('/api/products');
-    expect(listRes.body).toHaveLength(2);
+    expect(listRes.body).toHaveLength(9);
   });
 });

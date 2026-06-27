@@ -1,39 +1,171 @@
-import React, { useEffect, useState, useCallback } from 'react';
-import { StyleSheet, Text, View, FlatList, Image, SafeAreaView, Platform, StatusBar, TouchableOpacity, Alert, ActivityIndicator } from 'react-native';
+import React, { useEffect, useState, useCallback, useRef } from 'react';
+import { StyleSheet, Text, View, FlatList, Image, SafeAreaView, Platform, StatusBar, TouchableOpacity, Alert, ActivityIndicator, TextInput } from 'react-native';
 import { router } from 'expo-router';
-import { fetchProducts, deleteProduct, Product, getProductById } from '@/services/api';
+import { fetchProducts, deleteProduct, Product, fetchCategories, Category } from '@/services/api';
 import { getToken, getUserIdFromToken } from '@/services/auth';
+
+const LIMIT = 10;
+
+const FilterBar = React.memo(({
+  search, setSearch,
+  categories, categoryFilter, setCategoryFilter,
+  statusFilter, setStatusFilter,
+  minPrice, setMinPrice, maxPrice, setMaxPrice,
+  setFiltersDirty,
+}: {
+  search: string;
+  setSearch: (v: string) => void;
+  categories: Category[];
+  categoryFilter: number | undefined;
+  setCategoryFilter: (v: number | undefined) => void;
+  statusFilter: string;
+  setStatusFilter: (v: string) => void;
+  minPrice: string;
+  setMinPrice: (v: string) => void;
+  maxPrice: string;
+  setMaxPrice: (v: string) => void;
+  setFiltersDirty: React.Dispatch<React.SetStateAction<number>>;
+}) => {
+  const timeout = useRef<NodeJS.Timeout | null>(null);
+  return (
+    <View style={styles.filterBar}>
+      <TextInput
+        style={styles.searchInput}
+        placeholder="İlanlarda ara..."
+        placeholderTextColor="#94a3b8"
+        value={search}
+        onChangeText={(t) => {
+          setSearch(t);
+          if (timeout.current) clearTimeout(timeout.current);
+          timeout.current = setTimeout(() => setFiltersDirty((c) => c + 1), 300);
+        }}
+      />
+      <View style={styles.filterRow}>
+        <TouchableOpacity
+          style={[styles.filterChip, !categoryFilter && styles.filterChipActive]}
+          onPress={() => { setCategoryFilter(undefined); setFiltersDirty((c) => c + 1); }}
+        >
+          <Text style={[styles.filterChipText, !categoryFilter && styles.filterChipTextActive]}>Tümü</Text>
+        </TouchableOpacity>
+        {categories.map((cat) => (
+          <TouchableOpacity
+            key={cat.id}
+            style={[styles.filterChip, categoryFilter === cat.id && styles.filterChipActive]}
+            onPress={() => { setCategoryFilter(cat.id); setFiltersDirty((c) => c + 1); }}
+          >
+            <Text style={[styles.filterChipText, categoryFilter === cat.id && styles.filterChipTextActive]}>{cat.name}</Text>
+          </TouchableOpacity>
+        ))}
+      </View>
+      <View style={styles.filterRow}>
+        {['', 'active', 'reserved', 'sold'].map((s) => (
+          <TouchableOpacity
+            key={s}
+            style={[styles.filterChip, statusFilter === s && styles.filterChipActive]}
+            onPress={() => { setStatusFilter(s); setFiltersDirty((c) => c + 1); }}
+          >
+            <Text style={[styles.filterChipText, statusFilter === s && styles.filterChipTextActive]}>
+              {s === '' ? 'Tümü' : s === 'active' ? 'Aktif' : s === 'reserved' ? 'Rezerve' : 'Satıldı'}
+            </Text>
+          </TouchableOpacity>
+        ))}
+      </View>
+      <View style={styles.priceRow}>
+        <TextInput
+          style={styles.priceInput}
+          placeholder="Min ₺"
+          placeholderTextColor="#94a3b8"
+          value={minPrice}
+          onChangeText={(t) => {
+            setMinPrice(t);
+            if (timeout.current) clearTimeout(timeout.current);
+            timeout.current = setTimeout(() => setFiltersDirty((c) => c + 1), 300);
+          }}
+          keyboardType="decimal-pad"
+        />
+        <Text style={styles.priceSep}>-</Text>
+        <TextInput
+          style={styles.priceInput}
+          placeholder="Max ₺"
+          placeholderTextColor="#94a3b8"
+          value={maxPrice}
+          onChangeText={(t) => {
+            setMaxPrice(t);
+            if (timeout.current) clearTimeout(timeout.current);
+            timeout.current = setTimeout(() => setFiltersDirty((c) => c + 1), 300);
+          }}
+          keyboardType="decimal-pad"
+        />
+      </View>
+    </View>
+  );
+});
 
 export default function App() {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
+  const [loadingMore, setLoadingMore] = useState(false);
+  const [page, setPage] = useState(1);
+  const [hasMore, setHasMore] = useState(true);
   const [error, setError] = useState('');
   const [userId, setUserId] = useState<number | null>(null);
 
+  const [search, setSearch] = useState('');
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [categoryFilter, setCategoryFilter] = useState<number | undefined>();
+  const [statusFilter, setStatusFilter] = useState('');
+  const [minPrice, setMinPrice] = useState('');
+  const [maxPrice, setMaxPrice] = useState('');
+
+  const [filtersDirty, setFiltersDirty] = useState(0);
+
   useEffect(() => {
     getUserIdFromToken().then(setUserId);
-    getProducts();
+    fetchCategories().then((res) => setCategories(res.data)).catch(() => {});
   }, []);
 
-  const getProducts = async () => {
+  useEffect(() => {
+    loadPage(1, true);
+  }, [filtersDirty]);
+
+  const loadPage = async (p: number, replace: boolean) => {
+    if (replace && products.length === 0) setLoading(true);
     setError('');
     try {
-      const response = await fetchProducts();
-      setProducts(response.data);
+      const params: Record<string, any> = { page: p, limit: LIMIT };
+      if (search) params.search = search;
+      if (categoryFilter) params.category_id = categoryFilter;
+      if (statusFilter) params.status = statusFilter;
+      if (minPrice) params.min_price = minPrice;
+      if (maxPrice) params.max_price = maxPrice;
+      const response = await fetchProducts(params);
+      const data = response.data as any;
+      const newProducts = Array.isArray(data) ? data : data.products || [];
+      const totalPages = parseInt(response.headers?.['x-total-pages'] || '1', 10);
+      setProducts((prev) => (replace ? newProducts : [...prev, ...newProducts]));
+      setPage(p);
+      setHasMore(p < totalPages);
     } catch (err) {
       setError('Ürünler yüklenirken bir hata oluştu. Aşağı çekerek tekrar deneyin.');
       console.error("Veri çekme hatası:", err);
     } finally {
       setLoading(false);
+      setLoadingMore(false);
     }
   };
 
   const onRefresh = useCallback(async () => {
     setRefreshing(true);
-    await getProducts();
+    await loadPage(1, true);
     setRefreshing(false);
-  }, []);
+  }, [search, categoryFilter, statusFilter, minPrice, maxPrice]);
+
+  const onEndReached = useCallback(() => {
+    if (!hasMore || loadingMore) return;
+    setLoadingMore(true);
+    loadPage(page + 1, false);
+  }, [hasMore, loadingMore, page, search, categoryFilter, statusFilter, minPrice, maxPrice]);
 
   const handleViewDetail = (product: Product) => {
     router.push({ pathname: '/detail' as any, params: { id: product.id.toString() } });
@@ -108,6 +240,15 @@ export default function App() {
     );
   };
 
+  const renderFooter = () => {
+    if (!loadingMore) return null;
+    return (
+      <View style={styles.footerLoader}>
+        <ActivityIndicator size="small" color="#22c55e" />
+      </View>
+    );
+  };
+
   if (loading) {
     return (
       <SafeAreaView style={styles.container}>
@@ -130,13 +271,32 @@ export default function App() {
         </View>
       )}
 
+      <FilterBar
+        search={search}
+        setSearch={setSearch}
+        categories={categories}
+        categoryFilter={categoryFilter}
+        setCategoryFilter={setCategoryFilter}
+        statusFilter={statusFilter}
+        setStatusFilter={setStatusFilter}
+        minPrice={minPrice}
+        setMinPrice={setMinPrice}
+        maxPrice={maxPrice}
+        setMaxPrice={setMaxPrice}
+        setFiltersDirty={setFiltersDirty}
+      />
+
       <FlatList
+        style={{ flex: 1 }}
         data={products}
         keyExtractor={(item) => item.id.toString()}
         renderItem={renderItem}
-        contentContainerStyle={products.length === 0 ? styles.emptyContainer : { padding: 10 }}
+        contentContainerStyle={products.length === 0 ? styles.emptyContainer : { paddingHorizontal: 10, paddingBottom: 10 }}
         refreshing={refreshing}
         onRefresh={onRefresh}
+        onEndReached={onEndReached}
+        onEndReachedThreshold={0.3}
+        ListFooterComponent={renderFooter}
         ListEmptyComponent={
           !error ? (
             <View style={styles.emptyState}>
@@ -182,6 +342,68 @@ const styles = StyleSheet.create({
     color: '#dc2626',
     fontSize: 13,
     textAlign: 'center',
+  },
+  filterBar: {
+    backgroundColor: 'white',
+    marginHorizontal: 10,
+    marginTop: 10,
+    marginBottom: 6,
+    borderRadius: 12,
+    padding: 12,
+    elevation: 2,
+    shadowColor: '#000',
+    shadowOpacity: 0.05,
+    shadowRadius: 4,
+  },
+  searchInput: {
+    backgroundColor: '#f5f5f5',
+    borderRadius: 10,
+    paddingHorizontal: 14,
+    paddingVertical: 10,
+    fontSize: 15,
+    color: '#111827',
+    marginBottom: 10,
+  },
+  filterRow: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 6,
+    marginBottom: 8,
+  },
+  filterChip: {
+    backgroundColor: '#f5f5f5',
+    borderRadius: 16,
+    paddingHorizontal: 14,
+    paddingVertical: 6,
+  },
+  filterChipActive: {
+    backgroundColor: '#22c55e',
+  },
+  filterChipText: {
+    fontSize: 13,
+    color: '#374151',
+  },
+  filterChipTextActive: {
+    color: '#fff',
+    fontWeight: '600',
+  },
+  priceRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+  priceInput: {
+    flex: 1,
+    backgroundColor: '#f5f5f5',
+    borderRadius: 10,
+    paddingHorizontal: 14,
+    paddingVertical: 8,
+    fontSize: 14,
+    color: '#111827',
+  },
+  priceSep: {
+    fontSize: 16,
+    color: '#6b7280',
   },
   card: {
     backgroundColor: 'white',
@@ -266,12 +488,6 @@ const styles = StyleSheet.create({
     color: '#9ca3af',
     marginTop: 4,
   },
-  priceRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-    marginTop: 5,
-  },
   statusBadge: {
     fontSize: 12,
     fontWeight: '600',
@@ -291,5 +507,9 @@ const styles = StyleSheet.create({
   statusSold: {
     backgroundColor: '#fef2f2',
     color: '#dc2626',
+  },
+  footerLoader: {
+    paddingVertical: 20,
+    alignItems: 'center',
   },
 });

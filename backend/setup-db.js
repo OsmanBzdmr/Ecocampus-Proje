@@ -13,7 +13,7 @@ async function setupDatabase() {
     await seedDemoData(db);
     console.log('  OK 3 kategori eklendi');
     console.log('  OK Test kullanici eklendi (email: test@university.edu, sifre: test123)');
-    console.log('  OK 3 test urunu eklendi\n');
+    console.log('  OK 10 test urunu eklendi\n');
 
     console.log('Veritabani kurulumu basariyla tamamlandi!\n');
     console.log('Test Bilgileri:');

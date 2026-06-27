@@ -27,6 +27,8 @@ export default function Dashboard({ token, onLogout }) {
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [totalCount, setTotalCount] = useState(0);
+  const [forSaleCount, setForSaleCount] = useState(0);
+  const [donationCount, setDonationCount] = useState(0);
   const [categories, setCategories] = useState([]);
   const limit = 10;
 
@@ -34,6 +36,14 @@ export default function Dashboard({ token, onLogout }) {
     fetchCategories()
       .then((res) => setCategories(res.data))
       .catch((err) => console.error('Kategori yükleme hatası:', err));
+  }, []);
+
+  useEffect(() => {
+    fetchProductsApi({ page: 1, limit: 1 }).then((res) => {
+      setTotalCount(parseInt(res.headers['x-total-count'] || '0', 10));
+      setForSaleCount(parseInt(res.headers['x-for-sale-count'] || '0', 10));
+      setDonationCount(parseInt(res.headers['x-donation-count'] || '0', 10));
+    }).catch((err) => console.error('İstatistik yükleme hatası:', err));
   }, []);
 
   const loadProducts = useCallback(async () => {
@@ -48,7 +58,6 @@ export default function Dashboard({ token, onLogout }) {
       const res = await fetchProductsApi(params);
       setProducts(res.data);
       setTotalPages(parseInt(res.headers['x-total-pages'] || '1', 10));
-      setTotalCount(parseInt(res.headers['x-total-count'] || '0', 10));
     } catch (err) {
       console.error('Ürün yükleme hatası:', err);
     } finally {
@@ -216,13 +225,13 @@ export default function Dashboard({ token, onLogout }) {
                   />
                   <StatsCard
                     title="Satılık Ürün"
-                    value={products.filter(p => p.price > 0).length}
+                    value={forSaleCount}
                     icon="💰"
                     color="bg-green-100 text-green-600"
                   />
                   <StatsCard
                     title="Bağış"
-                    value={products.filter(p => p.price == 0).length}
+                    value={donationCount}
                     icon="✨"
                     color="bg-eco-100 text-eco-600"
                   />
