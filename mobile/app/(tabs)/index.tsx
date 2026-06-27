@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback, useRef } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { StyleSheet, Text, View, FlatList, Image, SafeAreaView, Platform, StatusBar, TouchableOpacity, Alert, ActivityIndicator, TextInput } from 'react-native';
 import { router } from 'expo-router';
 import { fetchProducts, deleteProduct, Product, fetchCategories, Category } from '@/services/api';
@@ -155,17 +155,17 @@ export default function App() {
     }
   };
 
-  const onRefresh = useCallback(async () => {
+  const onRefresh = async () => {
     setRefreshing(true);
     await loadPage(1, true);
     setRefreshing(false);
-  }, [search, categoryFilter, statusFilter, minPrice, maxPrice]);
+  };
 
-  const onEndReached = useCallback(() => {
+  const onEndReached = () => {
     if (!hasMore || loadingMore) return;
     setLoadingMore(true);
     loadPage(page + 1, false);
-  }, [hasMore, loadingMore, page, search, categoryFilter, statusFilter, minPrice, maxPrice]);
+  };
 
   const handleViewDetail = (product: Product) => {
     router.push({ pathname: '/detail' as any, params: { id: product.id.toString() } });

@@ -3,7 +3,7 @@ const { createSchema, seedDemoData } = require('../../db/schema');
 
 /**
  * Mock veritabanını temizler, şemayı yeniden kurar ve demo verileri
- * (3 kategori, test kullanıcısı, 3 ürün) ekler. Testlerde beforeEach
+ * (3 kategori, test kullanıcısı, 10 ürün) ekler. Testlerde beforeEach
  * içinde çağrılarak her testin temiz/öngörülebilir bir durumdan
  * başlaması sağlanır.
  */

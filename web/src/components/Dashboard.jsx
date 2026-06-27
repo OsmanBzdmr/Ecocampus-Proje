@@ -38,12 +38,16 @@ export default function Dashboard({ token, onLogout }) {
       .catch((err) => console.error('Kategori yükleme hatası:', err));
   }, []);
 
-  useEffect(() => {
+  const loadStats = useCallback(() => {
     fetchProductsApi({ page: 1, limit: 1 }).then((res) => {
       setTotalCount(parseInt(res.headers['x-total-count'] || '0', 10));
       setForSaleCount(parseInt(res.headers['x-for-sale-count'] || '0', 10));
       setDonationCount(parseInt(res.headers['x-donation-count'] || '0', 10));
     }).catch((err) => console.error('İstatistik yükleme hatası:', err));
+  }, []);
+
+  useEffect(() => {
+    loadStats();
   }, []);
 
   const loadProducts = useCallback(async () => {
@@ -62,6 +66,7 @@ export default function Dashboard({ token, onLogout }) {
       console.error('Ürün yükleme hatası:', err);
     } finally {
       setLoading(false);
+      loadStats();
     }
   }, [search, categoryFilter, minPrice, maxPrice, statusFilter, page, limit]);
 

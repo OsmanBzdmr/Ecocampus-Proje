@@ -77,8 +77,9 @@ exports.getProducts = async (req, res, next) => {
         [...params, limitNum, offset]
       )).rows;
 
-      const forSaleRow = (await db.query(`SELECT COUNT(*)::int as cnt FROM products WHERE price > 0 ${whereSQL.replace('WHERE', 'AND')}`, params)).rows[0];
-      const donationRow = (await db.query(`SELECT COUNT(*)::int as cnt FROM products WHERE price = 0 ${whereSQL.replace('WHERE', 'AND')}`, params)).rows[0];
+      const andClause = whereSQL ? whereSQL.replace('WHERE', 'AND') : '';
+      const forSaleRow = (await db.query(`SELECT COUNT(*)::int as cnt FROM products WHERE price > 0 ${andClause}`, params)).rows[0];
+      const donationRow = (await db.query(`SELECT COUNT(*)::int as cnt FROM products WHERE price = 0 ${andClause}`, params)).rows[0];
 
       res.set({
         'X-Total-Count': total,
