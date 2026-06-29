@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
-import { getMe } from '../services/api';
-import { User, LogOut, Package, DollarSign, Heart } from 'lucide-react';
+import { getMe, deleteAccount } from '../services/api';
+import { User, LogOut, Package, DollarSign, Heart, Trash2, AlertTriangle } from 'lucide-react';
 
 export default function ProfilePage({ token, onLogout }) {
   const [user, setUser] = useState(null);
@@ -8,6 +8,10 @@ export default function ProfilePage({ token, onLogout }) {
   const [listings, setListings] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [deletePassword, setDeletePassword] = useState('');
+  const [deleteError, setDeleteError] = useState('');
+  const [deleting, setDeleting] = useState(false);
 
   useEffect(() => {
     getMe(token)
@@ -44,6 +48,7 @@ export default function ProfilePage({ token, onLogout }) {
   });
 
   return (
+    <>
     <div className="flex flex-col md:flex-row gap-8">
       {/* Left Sidebar */}
       <aside className="w-full md:w-64 flex-shrink-0 space-y-6">
@@ -77,6 +82,14 @@ export default function ProfilePage({ token, onLogout }) {
         >
           <LogOut className="w-5 h-5" />
           Güvenli Çıkış
+        </button>
+
+        <button
+          onClick={() => setShowDeleteModal(true)}
+          className="w-full flex items-center justify-center gap-2 border border-red-300 text-red-600 hover:bg-red-50 px-4 py-3 rounded-lg transition font-medium"
+        >
+          <Trash2 className="w-5 h-5" />
+          Hesabı Sil
         </button>
       </aside>
 
@@ -138,5 +151,58 @@ export default function ProfilePage({ token, onLogout }) {
         </div>
       </div>
     </div>
+
+    {showDeleteModal && (
+      <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+        <div className="bg-white rounded-2xl p-6 max-w-sm w-full space-y-4">
+          <div className="text-center">
+            <AlertTriangle className="w-12 h-12 text-red-500 mx-auto mb-3" />
+            <h3 className="text-xl font-bold text-gray-900">Hesabı Sil</h3>
+            <p className="text-gray-600 text-sm mt-2">
+              Bu işlem geri alınamaz. Tüm ilanlarınız kalıcı olarak silinecek.
+            </p>
+          </div>
+          <input
+            type="password"
+            value={deletePassword}
+            onChange={(e) => setDeletePassword(e.target.value)}
+            placeholder="Şifrenizi girin"
+            className="w-full px-4 py-2.5 rounded-lg border border-gray-300 focus:ring-2 focus:ring-red-500 focus:border-transparent outline-none transition"
+          />
+          {deleteError && (
+            <p className="text-red-600 text-sm text-center">{deleteError}</p>
+          )}
+          <div className="flex gap-3">
+            <button
+              onClick={() => { setShowDeleteModal(false); setDeletePassword(''); setDeleteError(''); }}
+              disabled={deleting}
+              className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 font-medium transition disabled:opacity-50"
+            >
+              İptal
+            </button>
+            <button
+              onClick={async () => {
+                if (!deletePassword) { setDeleteError('Şifre gerekli'); return; }
+                setDeleting(true);
+                setDeleteError('');
+                try {
+                  await deleteAccount(deletePassword, token);
+                  onLogout();
+                } catch (err) {
+                  setDeleteError(err.response?.data?.message || 'Silme işlemi başarısız');
+                } finally {
+                  setDeleting(false);
+                }
+              }}
+              disabled={deleting}
+              className="flex-1 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 font-medium transition disabled:opacity-50 flex items-center justify-center gap-2"
+            >
+              {deleting ? 'Siliniyor...' : 'Hesabı Sil'}
+            </button>
+          </div>
+        </div>
+      </div>
+    )}
+    </>
   );
 }

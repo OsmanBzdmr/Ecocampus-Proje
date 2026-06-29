@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
-import { StyleSheet, Text, View, ActivityIndicator, ScrollView, TouchableOpacity } from 'react-native';
+import { StyleSheet, Text, View, ActivityIndicator, ScrollView, TouchableOpacity, Alert, TextInput, Modal } from 'react-native';
 import { router } from 'expo-router';
-import { getMe, UserProfile } from '@/services/api';
+import { getMe, deleteAccount, UserProfile } from '@/services/api';
 import { getToken, removeToken } from '@/services/auth';
 import { eco } from '@/constants/theme';
 
@@ -9,6 +9,9 @@ export default function ProfileScreen() {
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [deleteVisible, setDeleteVisible] = useState(false);
+  const [deletePassword, setDeletePassword] = useState('');
+  const [deleteLoading, setDeleteLoading] = useState(false);
 
   const loadProfile = async () => {
     setLoading(true);
@@ -146,6 +149,61 @@ export default function ProfileScreen() {
       <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
         <Text style={styles.logoutText}>Güvenli Çıkış</Text>
       </TouchableOpacity>
+
+      {/* Delete Account */}
+      <TouchableOpacity style={styles.deleteButton} onPress={() => setDeleteVisible(true)}>
+        <Text style={styles.deleteButtonText}>Hesabı Sil</Text>
+      </TouchableOpacity>
+
+      <Modal visible={deleteVisible} transparent animationType="fade">
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContent}>
+            <Text style={styles.modalTitle}>Hesabı Sil</Text>
+            <Text style={styles.modalText}>
+              Bu işlem geri alınamaz. Tüm ilanlarınız kalıcı olarak silinecek.
+            </Text>
+            <TextInput
+              style={styles.modalInput}
+              placeholder="Şifrenizi girin"
+              placeholderTextColor="#94a3b8"
+              value={deletePassword}
+              onChangeText={setDeletePassword}
+              secureTextEntry
+            />
+            <View style={styles.modalButtons}>
+              <TouchableOpacity
+                style={styles.modalCancel}
+                onPress={() => { setDeleteVisible(false); setDeletePassword(''); }}
+              >
+                <Text style={styles.modalCancelText}>İptal</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.modalDelete}
+                onPress={async () => {
+                  if (!deletePassword) return;
+                  setDeleteLoading(true);
+                  try {
+                    const token = await getToken();
+                    if (!token) { router.replace('/login'); return; }
+                    await deleteAccount(deletePassword, token);
+                    await removeToken();
+                    router.replace('/login');
+                  } catch {
+                    Alert.alert('Hata', 'Şifre hatalı veya silme işlemi başarısız');
+                  } finally {
+                    setDeleteLoading(false);
+                  }
+                }}
+                disabled={deleteLoading}
+              >
+                <Text style={styles.modalDeleteText}>
+                  {deleteLoading ? 'Siliniyor...' : 'Hesabı Sil'}
+                </Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
     </ScrollView>
   );
 }
@@ -330,6 +388,86 @@ const styles = StyleSheet.create({
   logoutText: {
     color: '#fff',
     fontSize: 16,
+    fontWeight: '600',
+  },
+  deleteButton: {
+    borderWidth: 1,
+    borderColor: '#dc2626',
+    borderRadius: 12,
+    paddingVertical: 16,
+    alignItems: 'center',
+    marginTop: 12,
+  },
+  deleteButtonText: {
+    color: '#dc2626',
+    fontSize: 16,
+    fontWeight: '600',
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.5)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 24,
+  },
+  modalContent: {
+    backgroundColor: '#fff',
+    borderRadius: 20,
+    padding: 24,
+    width: '100%',
+    maxWidth: 340,
+  },
+  modalTitle: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: '#111827',
+    textAlign: 'center',
+    marginBottom: 8,
+  },
+  modalText: {
+    fontSize: 14,
+    color: '#6b7280',
+    textAlign: 'center',
+    marginBottom: 16,
+  },
+  modalInput: {
+    backgroundColor: '#f5f5f5',
+    borderWidth: 1,
+    borderColor: '#d1d5db',
+    borderRadius: 12,
+    paddingHorizontal: 16,
+    paddingVertical: 14,
+    fontSize: 16,
+    color: '#111827',
+    marginBottom: 16,
+  },
+  modalButtons: {
+    flexDirection: 'row',
+    gap: 12,
+  },
+  modalCancel: {
+    flex: 1,
+    borderWidth: 1,
+    borderColor: '#d1d5db',
+    borderRadius: 12,
+    paddingVertical: 14,
+    alignItems: 'center',
+  },
+  modalCancelText: {
+    color: '#374151',
+    fontSize: 15,
+    fontWeight: '600',
+  },
+  modalDelete: {
+    flex: 1,
+    backgroundColor: '#dc2626',
+    borderRadius: 12,
+    paddingVertical: 14,
+    alignItems: 'center',
+  },
+  modalDeleteText: {
+    color: '#fff',
+    fontSize: 15,
     fontWeight: '600',
   },
   listingBadgeRow: {

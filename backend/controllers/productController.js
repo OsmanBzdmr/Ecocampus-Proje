@@ -37,6 +37,17 @@ function buildWhere(params, search, category_id, min_price, max_price, status) {
   return clauses.length > 0 ? 'WHERE ' + clauses.join(' AND ') : '';
 }
 
+async function attachFavorited(products, user_id) {
+  if (!user_id || !products || products.length === 0) return products;
+  const ids = products.map(p => p.id);
+  const favs = (await db.query(
+    `SELECT product_id FROM favorites WHERE user_id = $1 AND product_id = ANY($2::int[])`,
+    [user_id, ids]
+  )).rows;
+  const favSet = new Set(favs.map(f => f.product_id));
+  return products.map(p => ({ ...p, is_favorited: favSet.has(p.id) }));
+}
+
 exports.getProductById = async (req, res, next) => {
   try {
     const { id } = req.params;
@@ -46,7 +57,8 @@ exports.getProductById = async (req, res, next) => {
     )).rows[0];
 
     if (!product) return res.status(404).json({ message: 'Ürün bulunamadı' });
-    res.json(product);
+    const result = await attachFavorited([product], req.user_id);
+    res.json(result[0]);
   } catch (err) {
     next(err);
   }
@@ -81,6 +93,7 @@ exports.getProducts = async (req, res, next) => {
       const forSaleRow = (await db.query(`SELECT COUNT(*)::int as cnt FROM products WHERE price > 0 ${andClause}`, params)).rows[0];
       const donationRow = (await db.query(`SELECT COUNT(*)::int as cnt FROM products WHERE price = 0 ${andClause}`, params)).rows[0];
 
+      const productsWithFav = await attachFavorited(products, req.user_id);
       res.set({
         'X-Total-Count': total,
         'X-Page': pageNum,
@@ -89,11 +102,12 @@ exports.getProducts = async (req, res, next) => {
         'X-For-Sale-Count': forSaleRow.cnt,
         'X-Donation-Count': donationRow.cnt,
       });
-      return res.json(products);
+      return res.json(productsWithFav);
     }
 
     const products = (await db.query(`SELECT p.*, u.username, c.name as category_name FROM products p JOIN users u ON p.user_id = u.id JOIN categories c ON p.category_id = c.id ${whereSQL} ${orderSQL}`, params)).rows;
-    res.json(products);
+    const productsWithFav = await attachFavorited(products, req.user_id);
+    res.json(productsWithFav);
   } catch (err) {
     next(err);
   }

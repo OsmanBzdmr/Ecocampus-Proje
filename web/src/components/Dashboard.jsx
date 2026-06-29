@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { LogOut, Package, Home, Leaf, Search, ChevronLeft, ChevronRight, User } from 'lucide-react';
-import { fetchProducts as fetchProductsApi, deleteProduct as deleteProductApi, fetchCategories } from '../services/api';
+import { LogOut, Package, Home, Leaf, Search, ChevronLeft, ChevronRight, User, Heart } from 'lucide-react';
+import { fetchProducts as fetchProductsApi, deleteProduct as deleteProductApi, fetchCategories, toggleFavorite as toggleFavoriteApi, getFavorites as getFavoritesApi } from '../services/api';
 import ProductForm from './ProductForm';
 import ProductTable from './ProductTable';
 import ProductDetail from './ProductDetail';
@@ -30,6 +30,8 @@ export default function Dashboard({ token, onLogout }) {
   const [forSaleCount, setForSaleCount] = useState(0);
   const [donationCount, setDonationCount] = useState(0);
   const [categories, setCategories] = useState([]);
+  const [favorites, setFavorites] = useState([]);
+  const [favoritesLoading, setFavoritesLoading] = useState(false);
   const limit = 10;
 
   useEffect(() => {
@@ -59,7 +61,7 @@ export default function Dashboard({ token, onLogout }) {
       if (minPrice) params.min_price = minPrice;
       if (maxPrice) params.max_price = maxPrice;
       if (statusFilter) params.status = statusFilter;
-      const res = await fetchProductsApi(params);
+      const res = await fetchProductsApi(params, token);
       setProducts(res.data);
       setTotalPages(parseInt(res.headers['x-total-pages'] || '1', 10));
     } catch (err) {
@@ -68,11 +70,37 @@ export default function Dashboard({ token, onLogout }) {
       setLoading(false);
       loadStats();
     }
-  }, [search, categoryFilter, minPrice, maxPrice, statusFilter, page, limit]);
+  }, [search, categoryFilter, minPrice, maxPrice, statusFilter, page, limit, token]);
 
   useEffect(() => {
     loadProducts();
   }, [loadProducts]);
+
+  const loadFavorites = useCallback(async () => {
+    setFavoritesLoading(true);
+    try {
+      const res = await getFavoritesApi(token);
+      setFavorites(res.data);
+    } catch (err) {
+      console.error('Favori yükleme hatası:', err);
+    } finally {
+      setFavoritesLoading(false);
+    }
+  }, [token]);
+
+  useEffect(() => {
+    if (activeTab === 'favorites') loadFavorites();
+  }, [activeTab, loadFavorites]);
+
+  const handleToggleFavorite = async (productId) => {
+    try {
+      await toggleFavoriteApi(productId, token);
+      loadProducts();
+      loadFavorites();
+    } catch (err) {
+      console.error('Favori toggle hatası:', err);
+    }
+  };
 
   const handleSearch = (e) => {
     setSearch(e.target.value);
@@ -174,6 +202,22 @@ export default function Dashboard({ token, onLogout }) {
               {totalCount > 0 && (
                 <span className="ml-auto bg-eco-600 px-2 py-1 rounded text-xs font-semibold">
                   {totalCount}
+                </span>
+              )}
+            </button>
+            <button
+              onClick={() => setActiveTab('favorites')}
+              className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition ${
+                activeTab === 'favorites'
+                  ? 'bg-eco-600 text-white'
+                  : 'text-gray-300 hover:bg-gray-700'
+              }`}
+            >
+              <Heart className="w-5 h-5" />
+              Favorilerim
+              {favorites.length > 0 && (
+                <span className="ml-auto bg-red-500 px-2 py-1 rounded text-xs font-semibold">
+                  {favorites.length}
                 </span>
               )}
             </button>
@@ -323,6 +367,7 @@ export default function Dashboard({ token, onLogout }) {
                   onDelete={(id) => setConfirmDelete(id)}
                   onEdit={handleEdit}
                   onViewDetail={handleViewDetail}
+                  onToggleFavorite={handleToggleFavorite}
                   loading={loading}
                   categories={categories}
                 />
@@ -364,6 +409,34 @@ export default function Dashboard({ token, onLogout }) {
               </div>
             )}
 
+            {/* Favorites Tab */}
+            {activeTab === 'favorites' && (
+              <div className="space-y-6">
+                <h2 className="text-2xl font-bold text-gray-900">Favorilerim</h2>
+                {favoritesLoading ? (
+                  <div className="bg-white rounded-2xl shadow-lg p-8 flex justify-center">
+                    <div className="w-8 h-8 border-4 border-eco-200 border-t-eco-500 rounded-full animate-spin" />
+                  </div>
+                ) : favorites.length === 0 ? (
+                  <div className="bg-white rounded-2xl shadow-lg p-12 text-center">
+                    <Heart className="w-16 h-16 text-gray-300 mx-auto mb-4" />
+                    <p className="text-gray-600 text-lg font-medium">Henüz favori ilanınız yok</p>
+                    <p className="text-gray-400 text-sm mt-1">İlanların üzerindeki kalp ikonuna tıklayarak favorilere ekleyebilirsiniz</p>
+                  </div>
+                ) : (
+                  <ProductTable
+                    products={favorites}
+                    onDelete={(id) => setConfirmDelete(id)}
+                    onEdit={handleEdit}
+                    onViewDetail={handleViewDetail}
+                    onToggleFavorite={handleToggleFavorite}
+                    loading={false}
+                    categories={categories}
+                  />
+                )}
+              </div>
+            )}
+
             {/* Profile Tab */}
             {activeTab === 'profile' && (
               <ProfilePage token={token} onLogout={onLogout} />
@@ -373,7 +446,7 @@ export default function Dashboard({ token, onLogout }) {
       </div>
 
       {/* Product Detail Modal */}
-      <ProductDetail productId={detailProductId} onClose={() => setDetailProductId(null)} />
+      <ProductDetail productId={detailProductId} onClose={() => setDetailProductId(null)} token={token} onToggleFavorite={handleToggleFavorite} />
 
       {/* Delete Confirmation Modal */}
       {confirmDelete && (

@@ -11,6 +11,7 @@ if (!process.env.JWT_SECRET) {
 const productRoutes = require('./routes/productRoutes');
 const authRoutes = require('./routes/authRoutes');
 const categoryRoutes = require('./routes/categoryRoutes');
+const favoriteRoutes = require('./routes/favoriteRoutes');
 const { generalLimiter } = require('./middleware/rateLimiter');
 
 const app = express();
@@ -45,6 +46,7 @@ app.use(generalLimiter);
 app.use('/api/products', productRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/api/categories', categoryRoutes);
+app.use('/api/favorites', favoriteRoutes);
 
 // 404 - tanımsız route'lar için
 app.use((req, res) => {

@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { StyleSheet, Text, View, Image, ActivityIndicator, ScrollView, TouchableOpacity, Platform, StatusBar } from 'react-native';
 import { useLocalSearchParams, router } from 'expo-router';
-import { getProductById, Product } from '@/services/api';
+import { getProductById, toggleFavorite, Product } from '@/services/api';
+import { getToken } from '@/services/auth';
 
 export default function DetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -38,7 +39,23 @@ export default function DetailScreen() {
           />
 
           <View style={styles.content}>
-            <Text style={styles.title}>{product.title}</Text>
+            <View style={styles.titleRow}>
+              <Text style={styles.title}>{product.title}</Text>
+              <TouchableOpacity
+                onPress={async () => {
+                  const token = await getToken();
+                  if (!token) { router.replace('/login'); return; }
+                  try {
+                    const res = await toggleFavorite(product.id, token);
+                    setProduct((prev) => prev ? { ...prev, is_favorited: res.data.favorited } : prev);
+                  } catch {}
+                }}
+              >
+                <Text style={{ fontSize: 24 }}>
+                  {product.is_favorited ? '❤️' : '🤍'}
+                </Text>
+              </TouchableOpacity>
+            </View>
 
             <View style={styles.meta}>
               {product.username && (
@@ -120,11 +137,17 @@ const styles = StyleSheet.create({
   content: {
     padding: 20,
   },
+  titleRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 8,
+  },
   title: {
     fontSize: 24,
     fontWeight: 'bold',
     color: '#111827',
-    marginBottom: 8,
+    flex: 1,
   },
   meta: {
     flexDirection: 'row',

@@ -1,6 +1,6 @@
 const jwt = require('jsonwebtoken');
 
-module.exports = function authMiddleware(req, res, next) {
+function authMiddleware(req, res, next) {
   let token = req.headers.authorization;
 
   if (!token) {
@@ -28,3 +28,20 @@ module.exports = function authMiddleware(req, res, next) {
     return res.status(401).json({ message: 'Geçersiz veya süresi dolmuş token' });
   }
 };
+
+// Token varsa kullanıcıyı tanı, yoksa engelleme — herkese açık uçlar için
+function optionalAuth(req, res, next) {
+  let token = req.headers.authorization;
+  if (!token) return next();
+  if (token.startsWith('Bearer ')) token = token.split(' ')[1];
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    if (decoded.id) req.user_id = decoded.id;
+  } catch {
+    // sessizce geç — token yok/geçersiz, kullanıcı anonim
+  }
+  next();
+}
+
+module.exports = authMiddleware;
+module.exports.optionalAuth = optionalAuth;

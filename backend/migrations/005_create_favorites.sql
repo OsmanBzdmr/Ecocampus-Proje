@@ -1,0 +1,7 @@
+CREATE TABLE IF NOT EXISTS favorites (
+  id SERIAL PRIMARY KEY,
+  user_id INTEGER REFERENCES users(id) ON DELETE CASCADE NOT NULL,
+  product_id INTEGER REFERENCES products(id) ON DELETE CASCADE NOT NULL,
+  created_at TIMESTAMP DEFAULT NOW(),
+  UNIQUE(user_id, product_id)
+);

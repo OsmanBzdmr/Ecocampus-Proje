@@ -92,6 +92,12 @@ function createMockDb() {
         const value = Number(params[idx]);
         return (row) => Number(row[field]) <= value;
       }
+      const anyMatch = part.match(/^(\w+)\s*=\s*ANY\(\?\[\]\)$/);
+      if (anyMatch) {
+        const field = anyMatch[1];
+        const values = params[idx];
+        return (row) => Array.isArray(values) && values.includes(row[field]);
+      }
       const eqMatch = part.match(/^(\w+)\s*=\s*\?$/);
       if (eqMatch) {
         const field = eqMatch[1];

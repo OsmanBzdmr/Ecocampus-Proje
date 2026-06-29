@@ -1,6 +1,7 @@
 const request = require('supertest');
 const app = require('../server');
 const { resetAndSeed } = require('./helpers/seed');
+const { loginAsTestUser, registerAndLogin } = require('./helpers/auth');
 
 beforeEach(async () => {
   await resetAndSeed();
@@ -91,5 +92,63 @@ describe('POST /api/auth/login', () => {
     const res = await request(app).post('/api/auth/login').send({ email: 'test@university.edu' });
 
     expect(res.status).toBe(400);
+  });
+});
+
+describe('GET /api/auth/me', () => {
+  it('geçerli token ile profil bilgilerini döner', async () => {
+    const token = await loginAsTestUser(app);
+
+    const res = await request(app).get('/api/auth/me').set('Authorization', token);
+
+    expect(res.status).toBe(200);
+    expect(res.body.user).toMatchObject({ username: 'testuser', email: 'test@university.edu' });
+    expect(res.body.stats).toMatchObject({ totalListings: 10 });
+    expect(res.body.listings).toHaveLength(10);
+  });
+
+  it('token olmadan 401 döner', async () => {
+    const res = await request(app).get('/api/auth/me');
+
+    expect(res.status).toBe(401);
+  });
+
+  it('geçersiz token ile 401 döner', async () => {
+    const res = await request(app).get('/api/auth/me').set('Authorization', 'gecersiz-token');
+
+    expect(res.status).toBe(401);
+  });
+});
+
+describe('DELETE /api/auth/me', () => {
+  it('doğru şifreyle hesabı siler', async () => {
+    const token = await loginAsTestUser(app);
+
+    const res = await request(app).delete('/api/auth/me').set('Authorization', token).send({ password: 'test123' });
+
+    expect(res.status).toBe(200);
+    expect(res.body.message).toBe('Hesabınız başarıyla silindi');
+  });
+
+  it('yanlış şifreyle 401 döner', async () => {
+    const token = await loginAsTestUser(app);
+
+    const res = await request(app).delete('/api/auth/me').set('Authorization', token).send({ password: 'yanlis' });
+
+    expect(res.status).toBe(401);
+  });
+
+  it('eksik şifreyle 400 döner (validasyon hatası)', async () => {
+    const token = await loginAsTestUser(app);
+
+    const res = await request(app).delete('/api/auth/me').set('Authorization', token).send({});
+
+    expect(res.status).toBe(400);
+  });
+
+  it('token olmadan 401 döner', async () => {
+    const res = await request(app).delete('/api/auth/me').send({ password: 'test123' });
+
+    expect(res.status).toBe(401);
   });
 });

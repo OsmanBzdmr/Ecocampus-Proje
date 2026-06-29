@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react';
-import { X, User, Calendar, Package } from 'lucide-react';
+import { X, User, Calendar, Heart } from 'lucide-react';
 import { getProductById } from '../services/api';
 
-export default function ProductDetail({ productId, onClose }) {
+export default function ProductDetail({ productId, onClose, token, onToggleFavorite }) {
   const [product, setProduct] = useState(null);
   const [loading, setLoading] = useState(true);
 
@@ -23,9 +23,22 @@ export default function ProductDetail({ productId, onClose }) {
         <div className="p-6">
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-2xl font-bold text-gray-900">Ürün Detayı</h2>
-            <button onClick={onClose} className="p-2 hover:bg-gray-100 rounded-lg transition">
-              <X className="w-5 h-5 text-gray-500" />
-            </button>
+            <div className="flex items-center gap-2">
+              {product && token && (
+                <button
+                  onClick={() => {
+                    if (onToggleFavorite) onToggleFavorite(productId);
+                    setProduct((prev) => prev ? { ...prev, is_favorited: !prev.is_favorited } : prev);
+                  }}
+                  className="p-2 hover:bg-gray-100 rounded-lg transition"
+                >
+                  <Heart className={`w-5 h-5 ${product?.is_favorited ? 'fill-red-500 text-red-500' : 'text-gray-500'}`} />
+                </button>
+              )}
+              <button onClick={onClose} className="p-2 hover:bg-gray-100 rounded-lg transition">
+                <X className="w-5 h-5 text-gray-500" />
+              </button>
+            </div>
           </div>
 
           {loading ? (

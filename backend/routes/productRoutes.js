@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const productController = require('../controllers/productController');
 const authMiddleware = require('../middleware/authMiddleware');
+const { optionalAuth } = authMiddleware;
 const { createProductValidation, updateProductValidation, listProductsValidation } = require('../middleware/validationMiddleware');
 
 const multer = require('multer');
@@ -26,8 +27,8 @@ const upload = multer({
   limits: { fileSize: 5 * 1024 * 1024 },
 });
 
-router.get('/', listProductsValidation, productController.getProducts);
-router.get('/:id', productController.getProductById);
+router.get('/', optionalAuth, listProductsValidation, productController.getProducts);
+router.get('/:id', optionalAuth, productController.getProductById);
 router.post('/', authMiddleware, upload.single('image'), createProductValidation, productController.createProduct);
 router.put('/:id', authMiddleware, upload.single('image'), updateProductValidation, productController.updateProduct);
 router.delete('/:id', authMiddleware, productController.deleteProduct);

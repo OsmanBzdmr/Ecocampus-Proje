@@ -105,10 +105,17 @@ const listProductsValidation = [
   handleValidationErrors,
 ];
 
+const deleteAccountValidation = [
+  body('password')
+    .notEmpty().withMessage('Şifre zorunludur'),
+  handleValidationErrors,
+];
+
 module.exports = {
   registerValidation,
   loginValidation,
   createProductValidation,
   updateProductValidation,
   listProductsValidation,
+  deleteAccountValidation,
 };

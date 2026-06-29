@@ -47,6 +47,43 @@ describe('GET /api/products', () => {
 
     expect(res.status).toBe(400);
   });
+
+  it('status parametresiyle filtreler (active)', async () => {
+    const res = await request(app).get('/api/products').query({ status: 'active', page: 1, limit: 50 });
+
+    expect(res.status).toBe(200);
+    expect(res.body.every((p) => p.status === 'active')).toBe(true);
+  });
+
+  it('status parametresiyle filtreler (sold)', async () => {
+    const res = await request(app).get('/api/products').query({ status: 'sold', page: 1, limit: 50 });
+
+    expect(res.status).toBe(200);
+    expect(res.body.every((p) => p.status === 'sold')).toBe(true);
+  });
+
+  it('min_price ve max_price ile fiyat aralığı filtreler', async () => {
+    const res = await request(app).get('/api/products').query({ min_price: 100, max_price: 600, page: 1, limit: 50 });
+
+    expect(res.status).toBe(200);
+    expect(res.body.every((p) => p.price >= 100 && p.price <= 600)).toBe(true);
+  });
+
+  it('sort ve order parametreleriyle sıralama yapar', async () => {
+    const res = await request(app).get('/api/products').query({ sort: 'price', order: 'asc', page: 1, limit: 50 });
+
+    expect(res.status).toBe(200);
+    expect(res.body[0].price).toBeLessThanOrEqual(res.body[res.body.length - 1].price);
+  });
+
+  it('Bearer token ile is_favorited bilgisi gelir', async () => {
+    const token = await loginAsTestUser(app);
+
+    const res = await request(app).get('/api/products').query({ page: 1, limit: 5 }).set('Authorization', `Bearer ${token}`);
+
+    expect(res.status).toBe(200);
+    expect(res.body[0]).toHaveProperty('is_favorited');
+  });
 });
 
 describe('POST /api/products', () => {
@@ -120,6 +157,33 @@ describe('PUT /api/products/:id', () => {
   });
 });
 
+describe('GET /api/products/:id', () => {
+  it('var olan ürünü döner', async () => {
+    const res = await request(app).get('/api/products/1');
+
+    expect(res.status).toBe(200);
+    expect(res.body.id).toBe(1);
+    expect(res.body).toHaveProperty('title');
+    expect(res.body).toHaveProperty('price');
+    expect(res.body).toHaveProperty('description');
+  });
+
+  it('var olmayan ürün için 404 döner', async () => {
+    const res = await request(app).get('/api/products/9999');
+
+    expect(res.status).toBe(404);
+  });
+
+  it('Bearer token ile is_favorited bilgisi gelir', async () => {
+    const token = await loginAsTestUser(app);
+
+    const res = await request(app).get('/api/products/1').set('Authorization', `Bearer ${token}`);
+
+    expect(res.status).toBe(200);
+    expect(res.body).toHaveProperty('is_favorited');
+  });
+});
+
 describe('DELETE /api/products/:id', () => {
   it('ürün sahibi olmayan kullanıcı silemez (403)', async () => {
     const otherToken = await registerAndLogin(app, {
@@ -142,5 +206,19 @@ describe('DELETE /api/products/:id', () => {
 
     const listRes = await request(app).get('/api/products');
     expect(listRes.body).toHaveLength(9);
+  });
+
+  it('token olmadan 401 döner', async () => {
+    const res = await request(app).delete('/api/products/1');
+
+    expect(res.status).toBe(401);
+  });
+
+  it('var olmayan ürün için 404 döner', async () => {
+    const token = await loginAsTestUser(app);
+
+    const res = await request(app).delete('/api/products/9999').set('Authorization', token);
+
+    expect(res.status).toBe(404);
   });
 });

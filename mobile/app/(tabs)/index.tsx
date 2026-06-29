@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { StyleSheet, Text, View, FlatList, Image, SafeAreaView, Platform, StatusBar, TouchableOpacity, Alert, ActivityIndicator, TextInput } from 'react-native';
 import { router } from 'expo-router';
-import { fetchProducts, deleteProduct, Product, fetchCategories, Category } from '@/services/api';
+import { fetchProducts, deleteProduct, toggleFavorite, Product, fetchCategories, Category } from '@/services/api';
 import { getToken, getUserIdFromToken } from '@/services/auth';
 
 const LIMIT = 10;
@@ -139,7 +139,8 @@ export default function App() {
       if (statusFilter) params.status = statusFilter;
       if (minPrice) params.min_price = minPrice;
       if (maxPrice) params.max_price = maxPrice;
-      const response = await fetchProducts(params);
+      const token = await getToken();
+      const response = await fetchProducts(params, token || undefined);
       const data = response.data as any;
       const newProducts = Array.isArray(data) ? data : data.products || [];
       const totalPages = parseInt(response.headers?.['x-total-pages'] || '1', 10);
@@ -195,6 +196,17 @@ export default function App() {
     );
   };
 
+  const handleToggleFavorite = async (productId: number) => {
+    try {
+      const token = await getToken();
+      if (!token) { router.replace('/login'); return; }
+      const res = await toggleFavorite(productId, token);
+      setProducts((prev) => prev.map((p) =>
+        p.id === productId ? { ...p, is_favorited: res.data.favorited } : p
+      ));
+    } catch {}
+  };
+
   const renderItem = ({ item }: { item: Product }) => {
     const isOwner = userId !== null && item.user_id === userId;
 
@@ -205,6 +217,11 @@ export default function App() {
           <View style={styles.info}>
             <View style={styles.titleRow}>
               <Text style={styles.title}>{item.title}</Text>
+              <TouchableOpacity onPress={() => handleToggleFavorite(item.id)} style={styles.favBtn}>
+                <Text style={item.is_favorited ? styles.favActive : styles.favInactive}>
+                  {item.is_favorited ? '❤️' : '🤍'}
+                </Text>
+              </TouchableOpacity>
               {isOwner && (
                 <View style={styles.ownerActions}>
                   <TouchableOpacity
@@ -458,6 +475,16 @@ const styles = StyleSheet.create({
     color: '#dc2626',
     fontSize: 13,
     fontWeight: '600',
+  },
+  favBtn: {
+    paddingHorizontal: 6,
+  },
+  favActive: {
+    fontSize: 20,
+  },
+  favInactive: {
+    fontSize: 20,
+    opacity: 0.5,
   },
   price: {
     fontSize: 16,

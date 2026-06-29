@@ -22,6 +22,7 @@ export interface Product {
   username?: string;
   category_name?: string;
   created_at?: string;
+  is_favorited?: boolean;
 }
 
 export interface Category {
@@ -41,8 +42,11 @@ export const login = (credentials: { email: string; password: string }) =>
 export const register = (data: { username: string; email: string; password: string }) =>
   API.post<{ id: number; username: string; email: string }>('/api/auth/register', data);
 
-export const fetchProducts = (params?: Record<string, any>) =>
-  API.get<Product[]>('/api/products', { params });
+export const fetchProducts = (params?: Record<string, any>, token?: string) => {
+  const config: Record<string, any> = { params };
+  if (token) config.headers = { Authorization: token };
+  return API.get<Product[]>('/api/products', config);
+};
 
 export const getProductById = (id: number) =>
   API.get<Product>(`/api/products/${id}`);
@@ -76,3 +80,19 @@ export interface UserProfile {
 
 export const getMe = (token: string) =>
   API.get<UserProfile>('/api/auth/me', { headers: { Authorization: token } });
+
+export const deleteAccount = (password: string, token: string) =>
+  API.delete<{ message: string }>('/api/auth/me', {
+    headers: { Authorization: token },
+    data: { password },
+  });
+
+export const toggleFavorite = (productId: number, token: string) =>
+  API.post<{ favorited: boolean }>(`/api/favorites/${productId}`, null, {
+    headers: { Authorization: token },
+  });
+
+export const getFavorites = (token: string) =>
+  API.get<Product[]>('/api/favorites', {
+    headers: { Authorization: token },
+  });

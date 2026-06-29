@@ -40,6 +40,24 @@ exports.login = async (req, res, next) => {
   }
 };
 
+exports.deleteAccount = async (req, res, next) => {
+  try {
+    const user_id = req.user_id;
+    const { password } = req.body;
+
+    const user = (await db.query('SELECT * FROM users WHERE id = $1', [user_id])).rows[0];
+    if (!user) return res.status(404).json({ message: 'Kullanıcı bulunamadı' });
+
+    const valid = await bcrypt.compare(password, user.password);
+    if (!valid) return res.status(401).json({ message: 'Şifre hatalı' });
+
+    await db.query('DELETE FROM users WHERE id = $1', [user_id]);
+    res.json({ message: 'Hesabınız başarıyla silindi' });
+  } catch (err) {
+    next(err);
+  }
+};
+
 exports.getMe = async (req, res, next) => {
   try {
     const user_id = req.user_id;

@@ -1,7 +1,7 @@
 import React from 'react';
-import { Trash2, Pencil, AlertCircle } from 'lucide-react';
+import { Trash2, Pencil, Heart, AlertCircle } from 'lucide-react';
 
-export default function ProductTable({ products, onDelete, onEdit, onViewDetail, loading, categories = [] }) {
+export default function ProductTable({ products, onDelete, onEdit, onViewDetail, onToggleFavorite, loading, categories = [] }) {
   const getCategoryName = (categoryId) => {
     const cat = categories.find((c) => c.id === categoryId);
     return cat ? cat.name : '—';
@@ -46,6 +46,7 @@ export default function ProductTable({ products, onDelete, onEdit, onViewDetail,
                 <th className="text-left py-3 px-4 font-semibold text-gray-700">Fiyat</th>
                 <th className="text-left py-3 px-4 font-semibold text-gray-700">Durum</th>
                 <th className="text-left py-3 px-4 font-semibold text-gray-700">İşlem</th>
+                <th className="text-center py-3 px-4 font-semibold text-gray-700">Fav</th>
               </tr>
             </thead>
             <tbody>
@@ -114,6 +115,16 @@ export default function ProductTable({ products, onDelete, onEdit, onViewDetail,
                       </button>
                     </div>
                   </td>
+                  <td className="py-4 px-4 text-center">
+                    <button
+                      onClick={() => onToggleFavorite && onToggleFavorite(product.id)}
+                      className="transition hover:scale-110"
+                    >
+                      <Heart
+                        className={`w-5 h-5 ${product.is_favorited ? 'fill-red-500 text-red-500' : 'text-gray-400'}`}
+                      />
+                    </button>
+                  </td>
                 </tr>
               ))}
             </tbody>
@@ -157,6 +168,14 @@ export default function ProductTable({ products, onDelete, onEdit, onViewDetail,
                 </div>
               </div>
               <div className="flex gap-2">
+                <button
+                  onClick={() => onToggleFavorite && onToggleFavorite(product.id)}
+                  className="flex items-center justify-center px-3 py-2 rounded-lg border border-gray-200 transition"
+                >
+                  <Heart
+                    className={`w-5 h-5 ${product.is_favorited ? 'fill-red-500 text-red-500' : 'text-gray-400'}`}
+                  />
+                </button>
                 <button
                   onClick={() => onEdit(product)}
                   className="flex-1 flex items-center justify-center gap-2 text-eco-600 hover:text-eco-800 hover:bg-eco-50 px-3 py-2 rounded-lg transition font-medium border border-eco-200"

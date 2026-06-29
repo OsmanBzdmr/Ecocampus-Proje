@@ -15,13 +15,14 @@
 - 🖼️ **Görsel Yükleme** — Dosya seçici ile resim yükleme (JPG/PNG/GIF/WEBP, max 5MB) veya URL girme
 - 🔍 **Arama, Filtreleme ve Sayfalama** — Metin arama, kategori filtresi, fiyat aralığı, durum filtresi, sıralama, sayfalama
 - 📄 **Ürün Detay Sayfası** — Web'de modal, mobil'de ayrı ekran; resim, kullanıcı, kategori, durum, açıklama
+- ❤️ **Favori Yönetimi** — Web ve mobilde kalp ikonuyla favori ekleme/çıkarma; ayrı Favorilerim sekmesi, anlık tazeleme
 - 🏷️ **Ürün Durumu** — Aktif / Rezerve / Satıldı badge'leri, web ve mobilde gösterim
 - 📊 **Dashboard Analitik** — Toplam ilan, satılık ürün ve bağış sayılarını anlık takip edin
 - ✏️ **İlan Düzenleme** — Web ve mobil üzerinden mevcut ilanlarınızı düzenleyin, durum değiştirin
 - 🗑️ **İlan Yönetimi** — Kendi ilanlarınızı oluşturun, düzenleyin ve silin (yetkisiz işlemler backend tarafından reddedilir)
 - 📱 **Tam Mobil Destek** — Expo ile giriş, kayıt, ilan ekleme/düzenleme/silme, galeriden görsel seçme, pull-to-refresh, profil sayfası, auth guard ve güvenli token yönetimi (expo-secure-store). Arama çubuğu (debounce), kategori/durum chip'leri, fiyat aralığı filtresi ve sonsuz kaydırma (infinite scroll) ile gelişmiş filtreleme
 - 🛡️ **Güvenlik Sertleştirmesi** — Helmet güvenlik header'ları, genel ve auth'a özel rate limiting (brute-force koruması), tüm girdiler için sunucu taraflı doğrulama, kısıtlı CORS
-- ✅ **Test Edilmiş Backend** — Jest + Supertest ile auth ve ürün uçları için otomatik testler, ESLint ile kod kalitesi kontrolü
+- ✅ **Kapsamlı Testler** — Backend'de Jest + Supertest (53 test), Web'de Vitest + Testing Library (25 test), Mobile'da Jest + ts-jest (21 test) — toplam 99 test
 - 👤 **Profil Sayfası** — Kullanıcı bilgileri, üyelik tarihi, kendi ilanlarının listesi ve istatistikler (web + mobil)
 - 🎨 **Modern UI** — Tailwind CSS ile responsive tasarım, toast bildirimleri, loading animasyonları
 
@@ -34,9 +35,9 @@
 | Backend | Node.js, Express.js |
 | Veritabanı | PostgreSQL |
 | Güvenlik | JWT, Bcryptjs, Helmet, express-rate-limit, express-validator |
-| Test & Kalite | Jest, Supertest, ESLint |
-| Web Frontend | React 19, Tailwind CSS v3, Axios, Lucide React |
-| Mobil | React Native (Expo) |
+| Test & Kalite | Jest, Supertest, Vitest, @testing-library/react, ts-jest, ESLint |
+| Web Frontend | React 19, Tailwind CSS v3, Axios, Lucide React, Vitest |
+| Mobil | React Native (Expo), jest, ts-jest, react-test-renderer |
 | Build Tool | Vite |
 | Görsel Yükleme | Multer |
 
@@ -51,7 +52,8 @@ Eco_campus/
 │   ├── controllers/
 │   │   ├── authController.js     # Kayıt, giriş, profil
 │   │   ├── productController.js  # Ürün CRUD + detay + filtreleme
-│   │   └── categoryController.js # Kategori listeleme
+│   │   ├── categoryController.js # Kategori listeleme
+│   │   └── favoriteController.js # Favori toggle + listeleme
 │   ├── db/
 │   │   ├── seed.js               # Demo veri (kullanıcı, kategori, ürün)
 │   │   └── schema.js             # Migration SQL'lerini okur
@@ -67,10 +69,13 @@ Eco_campus/
 │   ├── routes/
 │   │   ├── authRoutes.js       # /api/auth/*
 │   │   ├── productRoutes.js    # /api/products/* (Multer upload dahil)
-│   │   └── categoryRoutes.js   # /api/categories
+│   │   ├── categoryRoutes.js   # /api/categories
+│   │   └── favoriteRoutes.js   # /api/favorites/*
 │   ├── tests/
-│   │   ├── auth.test.js        # Auth testleri (9 test)
-│   │   ├── products.test.js    # Ürün testleri (13 test)
+│   │   ├── auth.test.js        # Auth testleri (16 test)
+│   │   ├── products.test.js    # Ürün testleri (23 test)
+│   │   ├── categories.test.js  # Kategori testleri (4 test)
+│   │   ├── favorites.test.js   # Favori testleri (10 test)
 │   │   └── helpers/            # Mock DB, seed, auth yardımcıları
 │   ├── uploads/                # Yüklenen görseller (statik serve edilir)
 │   ├── server.js               # Express sunucu (helmet, CORS, rate limiter)
@@ -88,8 +93,16 @@ Eco_campus/
 │   │   │   ├── ProductDetail.jsx      # Ürün detay modalı
 │   │   │   ├── StatsCard.jsx          # İstatistik kartları
 │   │   │   ├── ProfilePage.jsx        # Profil sayfası
-│   │   │   └── Toast.jsx              # Bildirim bileşeni
-│   │   └── services/api.js            # Axios API katmanı
+│   │   │   ├── Toast.jsx              # Bildirim bileşeni
+│   │   ├── __tests__/             # Component testleri (Vitest + Testing Library)
+│   │   │   ├── ProductTable.test.jsx
+│   │   │   └── ProductDetail.test.jsx
+│   │   └── services/
+│   │       ├── api.js             # Axios API katmanı
+│   │       └── __tests__/
+│   │           └── api.test.js    # API servis testleri
+│   ├── vitest.config.ts
+│   ├── test-setup.js
 │   └── vite.config.js                 # Proxy ile backend yönlendirmesi
 ├── mobile/
 │   ├── app/
@@ -99,16 +112,29 @@ Eco_campus/
 │   │   ├── detail.tsx             # Ürün detay ekranı
 │   │   ├── edit-product.tsx       # İlan düzenleme (status + görsel)
 │   │   ├── modal.tsx
-│   │   └── (tabs)/
-│   │       ├── _layout.tsx        # Tab navigator
-│   │       ├── index.tsx          # İlan listesi + arama/filtre chip'leri + sonsuz kaydırma
-│   │       ├── add-product.tsx    # İlan ekleme (galeriden görsel seç)
-│   │       ├── explore.tsx        # Hakkında
-│   │       └── profile.tsx        # Profil ekranı
+│   │   ├── (tabs)/
+│   │   │   ├── _layout.tsx        # Tab navigator
+│   │   │   ├── index.tsx          # İlan listesi + arama/filtre chip'leri + sonsuz kaydırma
+│   │   │   ├── favorites.tsx      # Favorilerim sekmesi (pull-to-refresh)
+│   │   │   ├── add-product.tsx    # İlan ekleme (galeriden görsel seç)
+│   │   │   └── profile.tsx        # Profil ekranı
+│   │   └── __tests__/             # Component testleri
+│   │   │   ├── index.test.tsx
+│   │   │   ├── detail.test.tsx
+│   │   │   └── favorites.test.tsx
+│   ├── __mocks__/                 # Jest manual mocks
+│   │   ├── axios.ts
+│   │   └── expo-constants.ts
 │   ├── services/
+│   │   ├── __tests__/
+│   │   │   └── api.test.ts       # API servis testleri (16 test)
 │   │   ├── api.ts                 # Axios API katmanı (FormData desteği)
 │   │   └── auth.ts                # Token yönetimi (expo-secure-store)
-│   └── constants/theme.ts         # Eco renk paleti
+│   ├── constants/theme.ts         # Eco renk paleti
+│   ├── jest.config.js
+│   ├── jest-setup.js
+│   ├── tsconfig.jest.json
+│   └── babel.config.js
 └── README.md
 ```
 
@@ -162,10 +188,16 @@ node server.js
 # http://localhost:5000
 ```
 
-> 🧪 **Testler (opsiyonel):** Backend için Jest + Supertest ile yazılmış otomatik testleri ve ESLint kontrolünü çalıştırabilirsiniz:
+> 🧪 **Testler (opsiyonel):** Üç platformda da yazılmış otomatik testleri çalıştırabilirsiniz:
 > ```bash
-> npm test       # auth ve ürün uçları için testler
-> npm run lint   # ESLint kontrolü
+> # Backend (53 test — auth, products, categories, favorites)
+> cd backend && npm test
+>
+> # Web (25 test — API servisleri, component render)
+> cd web && npm test
+>
+> # Mobile (21 test — API servisleri, component render)
+> cd mobile && npm test
 > ```
 
 ### 5. Web dashboard'u başlat
@@ -203,6 +235,8 @@ npx expo start
 | POST | `/api/products` | Yeni ilan ekle (multipart/form-data ile görsel yükleme) | ✅ |
 | PUT | `/api/products/:id` | İlanı güncelle — kısmi güncelleme, status dahil | ✅ |
 | DELETE | `/api/products/:id` | İlan sil (sadece sahibi) | ✅ |
+| POST | `/api/favorites/:id` | Favori ekle/çıkar (toggle) | ✅ |
+| GET | `/api/favorites` | Favori listesini getir | ✅ |
 
 > **GET /api/products** parametreleri:
 > - `search` — başlık/açıklamada metin arama
