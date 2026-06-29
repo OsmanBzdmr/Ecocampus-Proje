@@ -35,7 +35,7 @@ describe('fetchProducts', () => {
     fetchProducts({ search: 'laptop' }, TOKEN);
     expect(mockGet).toHaveBeenCalledWith('/api/products', {
       params: { search: 'laptop' },
-      headers: { Authorization: TOKEN },
+      headers: { Authorization: `Bearer ${TOKEN}` },
     });
   });
 
@@ -46,9 +46,16 @@ describe('fetchProducts', () => {
 });
 
 describe('getProductById', () => {
-  it('doğru URL ile çağrılır', () => {
+  it('token olmadan çağrılır', () => {
     getProductById(5);
-    expect(mockGet).toHaveBeenCalledWith('/api/products/5');
+    expect(mockGet).toHaveBeenCalledWith('/api/products/5', {});
+  });
+
+  it('token ile çağrılır', () => {
+    getProductById(5, TOKEN);
+    expect(mockGet).toHaveBeenCalledWith('/api/products/5', {
+      headers: { Authorization: `Bearer ${TOKEN}` },
+    });
   });
 });
 
@@ -57,7 +64,7 @@ describe('addProduct', () => {
     const data = new FormData();
     addProduct(data, TOKEN);
     expect(mockPost).toHaveBeenCalledWith('/api/products', data, {
-      headers: { Authorization: TOKEN, 'Content-Type': 'multipart/form-data' },
+      headers: { Authorization: `Bearer ${TOKEN}`, 'Content-Type': 'multipart/form-data' },
     });
   });
 });
@@ -67,7 +74,7 @@ describe('updateProduct', () => {
     const data = { title: 'New Title' };
     updateProduct(3, data, TOKEN);
     expect(mockPut).toHaveBeenCalledWith('/api/products/3', data, {
-      headers: { Authorization: TOKEN, 'Content-Type': 'multipart/form-data' },
+      headers: { Authorization: `Bearer ${TOKEN}`, 'Content-Type': 'multipart/form-data' },
     });
   });
 });
@@ -76,7 +83,7 @@ describe('deleteProduct', () => {
   it('doğru ID ve token ile çağrılır', () => {
     deleteProduct(7, TOKEN);
     expect(mockDelete).toHaveBeenCalledWith('/api/products/7', {
-      headers: { Authorization: TOKEN },
+      headers: { Authorization: `Bearer ${TOKEN}` },
     });
   });
 });
@@ -108,7 +115,7 @@ describe('getMe', () => {
   it('Authorization header ile çağrılır', () => {
     getMe(TOKEN);
     expect(mockGet).toHaveBeenCalledWith('/api/auth/me', {
-      headers: { Authorization: TOKEN },
+      headers: { Authorization: `Bearer ${TOKEN}` },
     });
   });
 });
@@ -117,7 +124,7 @@ describe('deleteAccount', () => {
   it('password ve token ile çağrılır', () => {
     deleteAccount('sifre', TOKEN);
     expect(mockDelete).toHaveBeenCalledWith('/api/auth/me', {
-      headers: { Authorization: TOKEN },
+      headers: { Authorization: `Bearer ${TOKEN}` },
       data: { password: 'sifre' },
     });
   });
@@ -127,7 +134,7 @@ describe('toggleFavorite', () => {
   it('POST /api/favorites/:id ile çağrılır', () => {
     toggleFavorite(42, TOKEN);
     expect(mockPost).toHaveBeenCalledWith('/api/favorites/42', null, {
-      headers: { Authorization: TOKEN },
+      headers: { Authorization: `Bearer ${TOKEN}` },
     });
   });
 });
@@ -136,7 +143,7 @@ describe('getFavorites', () => {
   it('Authorization header ile çağrılır', () => {
     getFavorites(TOKEN);
     expect(mockGet).toHaveBeenCalledWith('/api/favorites', {
-      headers: { Authorization: TOKEN },
+      headers: { Authorization: `Bearer ${TOKEN}` },
     });
   });
 });

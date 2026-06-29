@@ -12,10 +12,11 @@ export default function DetailScreen() {
   useEffect(() => {
     if (!id) return;
     setLoading(true);
-    getProductById(parseInt(id))
-      .then((res) => setProduct(res.data))
-      .catch(() => {})
-      .finally(() => setLoading(false));
+    (async () => {
+      const token = await getToken();
+      const res = await getProductById(parseInt(id), token || undefined);
+      setProduct(res.data);
+    })().catch(() => {}).finally(() => setLoading(false));
   }, [id]);
 
   return (
@@ -33,10 +34,13 @@ export default function DetailScreen() {
         </View>
       ) : (
         <>
-          <Image
-            source={{ uri: product.image_url || 'https://via.placeholder.com/400x300' }}
-            style={styles.image}
-          />
+          {product.image_url ? (
+            <Image source={{ uri: product.image_url }} style={styles.image} />
+          ) : (
+            <View style={[styles.image, { backgroundColor: '#e5e7eb', justifyContent: 'center', alignItems: 'center' }]}>
+              <Text style={{ fontSize: 48 }}>📦</Text>
+            </View>
+          )}
 
           <View style={styles.content}>
             <View style={styles.titleRow}>
@@ -110,7 +114,7 @@ const styles = StyleSheet.create({
     paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight : 0,
   },
   center: {
-    flex: 1,
+    minHeight: 300,
     justifyContent: 'center',
     alignItems: 'center',
     paddingVertical: 60,

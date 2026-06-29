@@ -22,7 +22,7 @@
 - 🗑️ **İlan Yönetimi** — Kendi ilanlarınızı oluşturun, düzenleyin ve silin (yetkisiz işlemler backend tarafından reddedilir)
 - 📱 **Tam Mobil Destek** — Expo ile giriş, kayıt, ilan ekleme/düzenleme/silme, galeriden görsel seçme, pull-to-refresh, profil sayfası, auth guard ve güvenli token yönetimi (expo-secure-store). Arama çubuğu (debounce), kategori/durum chip'leri, fiyat aralığı filtresi ve sonsuz kaydırma (infinite scroll) ile gelişmiş filtreleme
 - 🛡️ **Güvenlik Sertleştirmesi** — Helmet güvenlik header'ları, genel ve auth'a özel rate limiting (brute-force koruması), tüm girdiler için sunucu taraflı doğrulama, kısıtlı CORS
-- ✅ **Kapsamlı Testler** — Backend'de Jest + Supertest (53 test), Web'de Vitest + Testing Library (25 test), Mobile'da Jest + ts-jest (21 test) — toplam 99 test
+- ✅ **Kapsamlı Testler** — Backend'de Jest + Supertest (53 test), Web'de Vitest + Testing Library (26 test), Mobile'da Jest + ts-jest (20 test) — toplam 99 test
 - 👤 **Profil Sayfası** — Kullanıcı bilgileri, üyelik tarihi, kendi ilanlarının listesi ve istatistikler (web + mobil)
 - 🎨 **Modern UI** — Tailwind CSS ile responsive tasarım, toast bildirimleri, loading animasyonları
 
@@ -193,10 +193,10 @@ node server.js
 > # Backend (53 test — auth, products, categories, favorites)
 > cd backend && npm test
 >
-> # Web (25 test — API servisleri, component render)
+> # Web (26 test — API servisleri, component render)
 > cd web && npm test
 >
-> # Mobile (21 test — API servisleri, component render)
+> # Mobile (20 test — API servisleri, component render)
 > cd mobile && npm test
 > ```
 

@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { LogOut, Package, Home, Leaf, Search, ChevronLeft, ChevronRight, User, Heart } from 'lucide-react';
+import { LogOut, Package, Home, Leaf, Search, ChevronLeft, ChevronRight, User, Heart, ShoppingBag, Gift } from 'lucide-react';
 import { fetchProducts as fetchProductsApi, deleteProduct as deleteProductApi, fetchCategories, toggleFavorite as toggleFavoriteApi, getFavorites as getFavoritesApi } from '../services/api';
 import ProductForm from './ProductForm';
 import ProductTable from './ProductTable';
@@ -29,6 +29,7 @@ export default function Dashboard({ token, onLogout }) {
   const [totalCount, setTotalCount] = useState(0);
   const [forSaleCount, setForSaleCount] = useState(0);
   const [donationCount, setDonationCount] = useState(0);
+  const [initialLoadDone, setInitialLoadDone] = useState(false);
   const [categories, setCategories] = useState([]);
   const [favorites, setFavorites] = useState([]);
   const [favoritesLoading, setFavoritesLoading] = useState(false);
@@ -38,18 +39,6 @@ export default function Dashboard({ token, onLogout }) {
     fetchCategories()
       .then((res) => setCategories(res.data))
       .catch((err) => console.error('Kategori yükleme hatası:', err));
-  }, []);
-
-  const loadStats = useCallback(() => {
-    fetchProductsApi({ page: 1, limit: 1 }).then((res) => {
-      setTotalCount(parseInt(res.headers['x-total-count'] || '0', 10));
-      setForSaleCount(parseInt(res.headers['x-for-sale-count'] || '0', 10));
-      setDonationCount(parseInt(res.headers['x-donation-count'] || '0', 10));
-    }).catch((err) => console.error('İstatistik yükleme hatası:', err));
-  }, []);
-
-  useEffect(() => {
-    loadStats();
   }, []);
 
   const loadProducts = useCallback(async () => {
@@ -64,11 +53,13 @@ export default function Dashboard({ token, onLogout }) {
       const res = await fetchProductsApi(params, token);
       setProducts(res.data);
       setTotalPages(parseInt(res.headers['x-total-pages'] || '1', 10));
+      setTotalCount(parseInt(res.headers['x-total-count'] || '0', 10));
+      setForSaleCount(parseInt(res.headers['x-for-sale-count'] || '0', 10));
+      setDonationCount(parseInt(res.headers['x-donation-count'] || '0', 10));
     } catch (err) {
       console.error('Ürün yükleme hatası:', err);
     } finally {
       setLoading(false);
-      loadStats();
     }
   }, [search, categoryFilter, minPrice, maxPrice, statusFilter, page, limit, token]);
 

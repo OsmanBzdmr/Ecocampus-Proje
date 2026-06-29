@@ -48,20 +48,14 @@ export const fetchProducts = (params?: Record<string, any>, token?: string) => {
   return API.get<Product[]>('/api/products', config);
 };
 
-export const getProductById = (id: number) =>
-  API.get<Product>(`/api/products/${id}`);
-
-export const addProduct = (data: any, token: string) =>
-  API.post<Product>('/api/products', data, { headers: { Authorization: token } });
+export const getProductById = (id: number, token?: string) => {
+  const config: Record<string, any> = {};
+  if (token) config.headers = { Authorization: token };
+  return API.get<Product>(`/api/products/${id}`, config);
+};
 
 export const addProductWithImage = (formData: FormData, token: string) =>
   API.post<Product>('/api/products', formData, { headers: { Authorization: token } });
-
-export const updateProduct = (
-  id: number,
-  data: any,
-  token: string
-) => API.put<Product>(`/api/products/${id}`, data, { headers: { Authorization: token } });
 
 export const updateProductWithImage = (id: number, formData: FormData, token: string) =>
   API.put<Product>(`/api/products/${id}`, formData, { headers: { Authorization: token } });

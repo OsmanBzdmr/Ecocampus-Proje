@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { X, User, Calendar, Heart } from 'lucide-react';
+import { X, User, Calendar, Heart, Package } from 'lucide-react';
 import { getProductById } from '../services/api';
 
 export default function ProductDetail({ productId, onClose, token, onToggleFavorite }) {
@@ -9,11 +9,11 @@ export default function ProductDetail({ productId, onClose, token, onToggleFavor
   useEffect(() => {
     if (!productId) return;
     setLoading(true);
-    getProductById(productId)
+    getProductById(productId, token)
       .then((res) => setProduct(res.data))
       .catch(() => {})
       .finally(() => setLoading(false));
-  }, [productId]);
+  }, [productId, token]);
 
   if (!productId) return null;
 
@@ -49,12 +49,18 @@ export default function ProductDetail({ productId, onClose, token, onToggleFavor
             <p className="text-center text-gray-500 py-8">Ürün bulunamadı</p>
           ) : (
             <div className="space-y-4">
-              <img
-                src={product.image_url}
-                alt={product.title}
-                className="w-full h-64 object-cover rounded-xl"
-                onError={(e) => e.target.src = 'https://via.placeholder.com/400x300'}
-              />
+              <div className="w-full h-64 rounded-xl overflow-hidden bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center">
+                {product.image_url ? (
+                  <img
+                    src={product.image_url}
+                    alt={product.title}
+                    className="w-full h-full object-cover"
+                    onError={(e) => { e.target.style.display = 'none'; }}
+                  />
+                ) : (
+                  <Package className="w-16 h-16 text-gray-400" />
+                )}
+              </div>
 
               <h3 className="text-xl font-bold text-gray-900">{product.title}</h3>
 

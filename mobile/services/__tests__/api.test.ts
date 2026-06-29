@@ -5,8 +5,8 @@ const axiosMock = require('axios');
 const { mockGet, mockPost, mockPut, mockDelete } = axiosMock;
 
 import {
-  fetchProducts, getProductById, addProduct, addProductWithImage,
-  updateProduct, updateProductWithImage, deleteProduct,
+  fetchProducts, getProductById, addProductWithImage,
+  updateProductWithImage, deleteProduct,
   login, register, fetchCategories, getMe, deleteAccount,
   toggleFavorite, getFavorites,
 } from '../api';
@@ -40,17 +40,14 @@ describe('fetchProducts', () => {
 });
 
 describe('getProductById', () => {
-  it('doğru URL ile çağrılır', () => {
+  it('token olmadan çağrılır', () => {
     getProductById(5);
-    expect(mockGet).toHaveBeenCalledWith('/api/products/5');
+    expect(mockGet).toHaveBeenCalledWith('/api/products/5', {});
   });
-});
 
-describe('addProduct', () => {
-  it('token ve data ile çağrılır', () => {
-    const data = { title: 'Test' };
-    addProduct(data, TOKEN);
-    expect(mockPost).toHaveBeenCalledWith('/api/products', data, {
+  it('token ile çağrılır', () => {
+    getProductById(5, TOKEN);
+    expect(mockGet).toHaveBeenCalledWith('/api/products/5', {
       headers: { Authorization: TOKEN },
     });
   });
@@ -61,16 +58,6 @@ describe('addProductWithImage', () => {
     const formData = new FormData();
     addProductWithImage(formData, TOKEN);
     expect(mockPost).toHaveBeenCalledWith('/api/products', formData, {
-      headers: { Authorization: TOKEN },
-    });
-  });
-});
-
-describe('updateProduct', () => {
-  it('doğru ID, data ve token ile çağrılır', () => {
-    const data = { title: 'New' };
-    updateProduct(3, data, TOKEN);
-    expect(mockPut).toHaveBeenCalledWith('/api/products/3', data, {
       headers: { Authorization: TOKEN },
     });
   });

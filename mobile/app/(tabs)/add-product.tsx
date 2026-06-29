@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { StyleSheet, Text, TextInput, TouchableOpacity, View, ActivityIndicator, ScrollView, KeyboardAvoidingView, Platform, Image } from 'react-native';
 import { router } from 'expo-router';
 import * as ImagePicker from 'expo-image-picker';
-import { addProduct, addProductWithImage, fetchCategories, Category } from '@/services/api';
+import { addProductWithImage, fetchCategories, Category } from '@/services/api';
 import { getToken } from '@/services/auth';
 
 export default function AddProductScreen() {
@@ -49,23 +49,14 @@ export default function AddProductScreen() {
         return;
       }
 
-      if (imageUri) {
-        const fd = new FormData();
-        fd.append('title', title);
-        fd.append('price', String(parseFloat(price)));
-        if (description) fd.append('description', description);
-        if (category_id) fd.append('category_id', String(category_id));
-        fd.append('image', { uri: imageUri, type: 'image/jpeg', name: 'photo.jpg' } as any);
-        await addProductWithImage(fd, token);
-      } else {
-        await addProduct({
-          title,
-          price: parseFloat(price),
-          description: description || undefined,
-          image_url: image_url || undefined,
-          category_id: category_id || undefined,
-        }, token);
-      }
+      const fd = new FormData();
+      fd.append('title', title);
+      fd.append('price', String(parseFloat(price)));
+      if (description) fd.append('description', description);
+      if (category_id) fd.append('category_id', String(category_id));
+      if (image_url) fd.append('image_url', image_url);
+      if (imageUri) fd.append('image', { uri: imageUri, type: 'image/jpeg', name: 'photo.jpg' } as any);
+      await addProductWithImage(fd, token);
       router.replace('/(tabs)');
     } catch (err: any) {
       setError(err.response?.data?.message || 'Ürün eklenirken hata oluştu');

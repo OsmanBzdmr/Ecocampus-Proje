@@ -53,7 +53,7 @@ describe('DetailScreen', () => {
       TestRenderer.create(<DetailScreen />);
     });
 
-    expect(mockGetProductById).toHaveBeenCalledWith(1);
+    expect(mockGetProductById).toHaveBeenCalledWith(1, 'test-token');
   });
 
   it('id parametresi yoksa API çağrılmaz', async () => {

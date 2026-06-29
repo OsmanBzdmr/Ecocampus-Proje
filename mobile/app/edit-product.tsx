@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { StyleSheet, Text, TextInput, TouchableOpacity, View, ActivityIndicator, ScrollView, KeyboardAvoidingView, Platform, Image } from 'react-native';
 import { useLocalSearchParams, router } from 'expo-router';
 import * as ImagePicker from 'expo-image-picker';
-import { updateProduct, updateProductWithImage, fetchCategories, Category, Product } from '@/services/api';
+import { updateProductWithImage, fetchCategories, Category, Product } from '@/services/api';
 import { getToken } from '@/services/auth';
 
 export default function EditProductScreen() {
@@ -53,25 +53,15 @@ export default function EditProductScreen() {
         return;
       }
 
-      if (imageUri) {
-        const fd = new FormData();
-        fd.append('title', title);
-        fd.append('price', String(parseFloat(price)));
-        if (description) fd.append('description', description);
-        if (category_id) fd.append('category_id', String(category_id));
-        fd.append('status', status);
-        fd.append('image', { uri: imageUri, type: 'image/jpeg', name: 'photo.jpg' } as any);
-        await updateProductWithImage(product.id, fd, token);
-      } else {
-        await updateProduct(product.id, {
-          title,
-          price: parseFloat(price),
-          description: description || undefined,
-          image_url: image_url || undefined,
-          category_id: category_id || undefined,
-          status,
-        }, token);
-      }
+      const fd = new FormData();
+      fd.append('title', title);
+      fd.append('price', String(parseFloat(price)));
+      if (description) fd.append('description', description);
+      if (category_id) fd.append('category_id', String(category_id));
+      if (image_url) fd.append('image_url', image_url);
+      fd.append('status', status);
+      if (imageUri) fd.append('image', { uri: imageUri, type: 'image/jpeg', name: 'photo.jpg' } as any);
+      await updateProductWithImage(product.id, fd, token);
       router.replace('/(tabs)');
     } catch (err: any) {
       setError(err.response?.data?.message || 'Güncelleme sırasında hata oluştu');
