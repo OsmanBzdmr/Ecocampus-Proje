@@ -24,6 +24,7 @@
 - 🛡️ **Güvenlik Sertleştirmesi** — Helmet güvenlik header'ları, genel ve auth'a özel rate limiting (brute-force koruması), tüm girdiler için sunucu taraflı doğrulama, kısıtlı CORS
 - ✅ **Kapsamlı Testler** — Backend'de Jest + Supertest (53 test), Web'de Vitest + Testing Library (26 test), Mobile'da Jest + ts-jest (20 test) — toplam 99 test
 - 👤 **Profil Sayfası** — Kullanıcı bilgileri, üyelik tarihi, kendi ilanlarının listesi ve istatistikler (web + mobil)
+- 🗑️ **Hesap Silme** — Şifre doğrulamalı kalıcı hesap silme; kullanıcının tüm ilanları ve favorileri cascade ile silinir (web + mobil)
 - 🎨 **Modern UI** — Tailwind CSS ile responsive tasarım, toast bildirimleri, loading animasyonları
 
 ---
@@ -50,7 +51,7 @@ Eco_campus/
 ├── backend/
 │   ├── config/db.js              # PostgreSQL bağlantısı (Pool)
 │   ├── controllers/
-│   │   ├── authController.js     # Kayıt, giriş, profil
+│   │   ├── authController.js     # Kayıt, giriş, profil, hesap silme
 │   │   ├── productController.js  # Ürün CRUD + detay + filtreleme
 │   │   ├── categoryController.js # Kategori listeleme
 │   │   └── favoriteController.js # Favori toggle + listeleme
@@ -72,7 +73,7 @@ Eco_campus/
 │   │   ├── categoryRoutes.js   # /api/categories
 │   │   └── favoriteRoutes.js   # /api/favorites/*
 │   ├── tests/
-│   │   ├── auth.test.js        # Auth testleri (16 test)
+│   │   ├── auth.test.js        # Auth testleri (16 test — register, login, profil, hesap silme)
 │   │   ├── products.test.js    # Ürün testleri (23 test)
 │   │   ├── categories.test.js  # Kategori testleri (4 test)
 │   │   ├── favorites.test.js   # Favori testleri (10 test)
@@ -229,6 +230,7 @@ npx expo start
 | POST | `/api/auth/register` | Yeni kullanıcı kaydı (rate limit'li) | — |
 | POST | `/api/auth/login` | Giriş yap, JWT döner (rate limit'li) | — |
 | GET | `/api/auth/me` | Giriş yapan kullanıcının profil + istatistik + ilanları | ✅ |
+| DELETE | `/api/auth/me` | Hesabı sil — şifre doğrulama gerekli; tüm ilanlar ve favoriler cascade ile silinir | ✅ |
 | GET | `/api/categories` | Kategorileri getir | — |
 | GET | `/api/products` | İlanları getir (filtreleme + sayfalama + sıralama) | — |
 | GET | `/api/products/:id` | Tek ürün detayı (username + category_name ile) | — |
