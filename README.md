@@ -135,7 +135,8 @@ Eco_campus/
 │   ├── jest.config.js
 │   ├── jest-setup.js
 │   ├── tsconfig.jest.json
-│   └── babel.config.js
+│   ├── babel.config.js
+│   └── metro.config.js                # Expo Router için gerekli Metro config
 └── README.md
 ```
 
@@ -220,6 +221,22 @@ npx expo start
 ```
 
 > 📱 **Not:** Mobil uygulama login-first yaklaşımıyla açılır. Giriş sonrası ilanları görüntüleyebilir, filtreleyebilir, galeriden görsel seçerek ilan ekleyebilirsiniz.
+
+#### Mobil bağlantı sorunları
+
+Telefon ile bilgisayar aynı Wi-Fi ağında olduğu halde Expo Go'da bağlantı kurulamıyorsa (`failed to download remote update`, sonsuza kadar süren "yükleniyor" ekranları vb.), ağ büyük ihtimalle **AP/client isolation** uyguluyordur (okul, kampüs veya misafir ağlarında yaygındır). Bu durumda:
+
+```bash
+npx expo start --tunnel
+```
+
+ile tünel modunu kullanın. Tünel modunda backend'in de dışarıdan erişilebilir olması gerektiğinden, backend'i ayrıca `npx ngrok http 5000` ile açıp `mobile/services/api.ts` içindeki `getBaseUrl()` fonksiyonunu geçici olarak o adrese sabitlemeniz gerekebilir. Ev/ofis gibi izole olmayan ağlarda standart `npx expo start` (LAN modu) yeterlidir.
+
+Eğer `Cannot find module 'babel-preset-expo'` hatası alırsanız:
+```bash
+cd mobile
+npm install babel-preset-expo@~54.0.11
+```
 
 ---
 

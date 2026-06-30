@@ -143,17 +143,17 @@ exports.updateProduct = async (req, res, next) => {
     const params = [];
     let idx = 0;
 
+    // Yüklenen dosya her zaman önceliklidir; body'den gelen image_url ile
+    // çakışmayı (aynı kolon için iki kez SET üretilmesini) önlemek için
+    // dosya varsa image_url alanı yok sayılır.
+    const effectiveImageUrl = req.file ? `/uploads/${req.file.filename}` : image_url;
+
     if (title !== undefined) { idx++; setClauses.push(`title = $${idx}`); params.push(title); }
     if (price !== undefined) { idx++; setClauses.push(`price = $${idx}`); params.push(price); }
     if (description !== undefined) { idx++; setClauses.push(`description = $${idx}`); params.push(description); }
-    if (image_url !== undefined) { idx++; setClauses.push(`image_url = $${idx}`); params.push(image_url); }
+    if (effectiveImageUrl !== undefined) { idx++; setClauses.push(`image_url = $${idx}`); params.push(effectiveImageUrl); }
     if (category_id !== undefined) { idx++; setClauses.push(`category_id = $${idx}`); params.push(category_id); }
     if (status !== undefined) { idx++; setClauses.push(`status = $${idx}`); params.push(status); }
-
-    // uploaded file overrides image_url
-    if (req.file) {
-      idx++; setClauses.push(`image_url = $${idx}`); params.push(`/uploads/${req.file.filename}`);
-    }
 
     if (setClauses.length === 0) {
       return res.status(400).json({ message: 'Güncellenecek alan bulunamadı' });

@@ -8,7 +8,22 @@ const getBaseUrl = () => {
   return 'http://10.0.2.2:5000';
 };
 
-const API = axios.create({ baseURL: getBaseUrl() });
+const API = axios.create({ baseURL: getBaseUrl(), timeout: 10000 });
+
+// Backend'e ulaşılamadığında (timeout, ağ hatası vb.) anlamlı bir hata fırlatır.
+// Bu olmadan axios istekleri varsayılan ayarla süresiz bekleyebilir ve
+// uygulama "yükleniyor" durumunda sonsuza kadar takılı kalabilir.
+API.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (error.code === 'ECONNABORTED') {
+      error.message = 'Sunucuya ulaşılamadı (zaman aşımı). İnternet bağlantınızı kontrol edin.';
+    } else if (!error.response) {
+      error.message = 'Sunucuya bağlanılamadı. Aynı ağda olduğunuzdan emin olun.';
+    }
+    return Promise.reject(error);
+  }
+);
 
 export interface Product {
   id: number;

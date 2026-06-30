@@ -17,6 +17,12 @@ export default function AddProductScreen() {
   const [error, setError] = useState('');
 
   useEffect(() => {
+    getToken().then((token) => {
+      if (!token) router.replace('/login');
+    });
+  }, []);
+
+  useEffect(() => {
     fetchCategories().then((res) => {
       setCategories(res.data);
       if (res.data.length > 0) setCategoryId(res.data[0].id);

@@ -213,7 +213,13 @@ export default function App() {
     return (
       <TouchableOpacity onPress={() => handleViewDetail(item)} activeOpacity={0.8}>
         <View style={styles.card}>
-          <Image source={{ uri: item.image_url || 'https://via.placeholder.com/150' }} style={styles.image} />
+          {item.image_url ? (
+            <Image source={{ uri: item.image_url }} style={styles.image} />
+          ) : (
+            <View style={[styles.image, styles.imagePlaceholder]}>
+              <Text style={styles.imagePlaceholderText}>📦</Text>
+            </View>
+          )}
           <View style={styles.info}>
             <View style={styles.titleRow}>
               <Text style={styles.title}>{item.title}</Text>
@@ -435,6 +441,14 @@ const styles = StyleSheet.create({
   image: {
     width: '100%',
     height: 200,
+  },
+  imagePlaceholder: {
+    backgroundColor: '#e5e7eb',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  imagePlaceholderText: {
+    fontSize: 40,
   },
   info: {
     padding: 15,

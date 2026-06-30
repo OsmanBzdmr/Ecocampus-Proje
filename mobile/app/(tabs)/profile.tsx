@@ -91,7 +91,7 @@ export default function ProfileScreen() {
         </View>
         <View style={styles.statBox}>
           <Text style={styles.statValue}>{profile.stats.activeListings}</Text>
-          <Text style={styles.statLabel}>Satılık</Text>
+          <Text style={styles.statLabel}>Aktif</Text>
         </View>
         <View style={styles.statBox}>
           <Text style={styles.statValue}>{profile.stats.donationListings}</Text>
@@ -120,11 +120,6 @@ export default function ProfileScreen() {
                 </Text>
               </View>
               <View style={styles.listingBadgeRow}>
-                <View style={[styles.badge, item.price > 0 ? styles.badgeActive : styles.badgeDonation]}>
-                  <Text style={[styles.badgeText, item.price > 0 ? styles.badgeTextActive : styles.badgeTextDonation]}>
-                    {item.price > 0 ? 'Aktif' : 'Bağış'}
-                  </Text>
-                </View>
                 {item.status && (
                   <View style={[styles.badge,
                     item.status === 'active' ? styles.badgeActive :
@@ -137,6 +132,11 @@ export default function ProfileScreen() {
                       {item.status === 'active' ? 'Aktif' :
                        item.status === 'reserved' ? 'Rezerve' : 'Satıldı'}
                     </Text>
+                  </View>
+                )}
+                {item.price === 0 && (
+                  <View style={[styles.badge, styles.badgeDonation]}>
+                    <Text style={[styles.badgeText, styles.badgeTextDonation]}>Bağış</Text>
                   </View>
                 )}
               </View>
