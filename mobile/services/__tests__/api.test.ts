@@ -12,6 +12,7 @@ import {
 } from '../api';
 
 const TOKEN = 'test-token-123';
+const BEARER = `Bearer ${TOKEN}`;
 
 describe('fetchProducts', () => {
   beforeEach(() => {
@@ -29,7 +30,7 @@ describe('fetchProducts', () => {
     fetchProducts({ search: 'laptop' }, TOKEN);
     expect(mockGet).toHaveBeenCalledWith('/api/products', {
       params: { search: 'laptop' },
-      headers: { Authorization: TOKEN },
+      headers: { Authorization: BEARER },
     });
   });
 
@@ -48,7 +49,7 @@ describe('getProductById', () => {
   it('token ile çağrılır', () => {
     getProductById(5, TOKEN);
     expect(mockGet).toHaveBeenCalledWith('/api/products/5', {
-      headers: { Authorization: TOKEN },
+      headers: { Authorization: BEARER },
     });
   });
 });
@@ -58,7 +59,7 @@ describe('addProductWithImage', () => {
     const formData = new FormData();
     addProductWithImage(formData, TOKEN);
     expect(mockPost).toHaveBeenCalledWith('/api/products', formData, {
-      headers: { Authorization: TOKEN },
+      headers: { Authorization: BEARER },
     });
   });
 });
@@ -68,7 +69,7 @@ describe('updateProductWithImage', () => {
     const formData = new FormData();
     updateProductWithImage(3, formData, TOKEN);
     expect(mockPut).toHaveBeenCalledWith('/api/products/3', formData, {
-      headers: { Authorization: TOKEN },
+      headers: { Authorization: BEARER },
     });
   });
 });
@@ -77,7 +78,7 @@ describe('deleteProduct', () => {
   it('doğru ID ve token ile çağrılır', () => {
     deleteProduct(7, TOKEN);
     expect(mockDelete).toHaveBeenCalledWith('/api/products/7', {
-      headers: { Authorization: TOKEN },
+      headers: { Authorization: BEARER },
     });
   });
 });
@@ -109,7 +110,7 @@ describe('getMe', () => {
   it('Authorization header ile çağrılır', () => {
     getMe(TOKEN);
     expect(mockGet).toHaveBeenCalledWith('/api/auth/me', {
-      headers: { Authorization: TOKEN },
+      headers: { Authorization: BEARER },
     });
   });
 });
@@ -118,7 +119,7 @@ describe('deleteAccount', () => {
   it('password ve token ile çağrılır', () => {
     deleteAccount('sifre', TOKEN);
     expect(mockDelete).toHaveBeenCalledWith('/api/auth/me', {
-      headers: { Authorization: TOKEN },
+      headers: { Authorization: BEARER },
       data: { password: 'sifre' },
     });
   });
@@ -128,7 +129,7 @@ describe('toggleFavorite', () => {
   it('POST /api/favorites/:id ile çağrılır', () => {
     toggleFavorite(42, TOKEN);
     expect(mockPost).toHaveBeenCalledWith('/api/favorites/42', null, {
-      headers: { Authorization: TOKEN },
+      headers: { Authorization: BEARER },
     });
   });
 });
@@ -137,7 +138,7 @@ describe('getFavorites', () => {
   it('Authorization header ile çağrılır', () => {
     getFavorites(TOKEN);
     expect(mockGet).toHaveBeenCalledWith('/api/favorites', {
-      headers: { Authorization: TOKEN },
+      headers: { Authorization: BEARER },
     });
   });
 });

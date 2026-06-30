@@ -44,24 +44,24 @@ export const register = (data: { username: string; email: string; password: stri
 
 export const fetchProducts = (params?: Record<string, any>, token?: string) => {
   const config: Record<string, any> = { params };
-  if (token) config.headers = { Authorization: token };
+  if (token) config.headers = { Authorization: `Bearer ${token}` };
   return API.get<Product[]>('/api/products', config);
 };
 
 export const getProductById = (id: number, token?: string) => {
   const config: Record<string, any> = {};
-  if (token) config.headers = { Authorization: token };
+  if (token) config.headers = { Authorization: `Bearer ${token}` };
   return API.get<Product>(`/api/products/${id}`, config);
 };
 
 export const addProductWithImage = (formData: FormData, token: string) =>
-  API.post<Product>('/api/products', formData, { headers: { Authorization: token } });
+  API.post<Product>('/api/products', formData, { headers: { Authorization: `Bearer ${token}` } });
 
 export const updateProductWithImage = (id: number, formData: FormData, token: string) =>
-  API.put<Product>(`/api/products/${id}`, formData, { headers: { Authorization: token } });
+  API.put<Product>(`/api/products/${id}`, formData, { headers: { Authorization: `Bearer ${token}` } });
 
 export const deleteProduct = (id: number, token: string) =>
-  API.delete<{ message: string }>(`/api/products/${id}`, { headers: { Authorization: token } });
+  API.delete<{ message: string }>(`/api/products/${id}`, { headers: { Authorization: `Bearer ${token}` } });
 
 export const fetchCategories = () =>
   API.get<Category[]>('/api/categories');
@@ -73,20 +73,20 @@ export interface UserProfile {
 }
 
 export const getMe = (token: string) =>
-  API.get<UserProfile>('/api/auth/me', { headers: { Authorization: token } });
+  API.get<UserProfile>('/api/auth/me', { headers: { Authorization: `Bearer ${token}` } });
 
 export const deleteAccount = (password: string, token: string) =>
   API.delete<{ message: string }>('/api/auth/me', {
-    headers: { Authorization: token },
+    headers: { Authorization: `Bearer ${token}` },
     data: { password },
   });
 
 export const toggleFavorite = (productId: number, token: string) =>
   API.post<{ favorited: boolean }>(`/api/favorites/${productId}`, null, {
-    headers: { Authorization: token },
+    headers: { Authorization: `Bearer ${token}` },
   });
 
 export const getFavorites = (token: string) =>
   API.get<Product[]>('/api/favorites', {
-    headers: { Authorization: token },
+    headers: { Authorization: `Bearer ${token}` },
   });

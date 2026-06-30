@@ -53,12 +53,15 @@ export default function ProductTable({ products, onDelete, onEdit, onViewDetail,
               {products.map((product) => (
                 <tr key={product.id} className="border-b border-gray-100 hover:bg-gray-50 transition">
                   <td className="py-4 px-4">
-                    <img
-                      src={product.image_url}
-                      alt={product.title}
-                      className="w-12 h-12 rounded-lg object-cover"
-                      onError={(e) => e.target.src = 'https://via.placeholder.com/50'}
-                    />
+                    {product.image_url ? (
+                      <img
+                        src={product.image_url}
+                        alt={product.title}
+                        className="w-12 h-12 rounded-lg object-cover"
+                      />
+                    ) : (
+                      <div className="w-12 h-12 rounded-lg bg-gray-200" />
+                    )}
                   </td>
                   <td className="py-4 px-4">
                     <div>
@@ -136,12 +139,15 @@ export default function ProductTable({ products, onDelete, onEdit, onViewDetail,
           {products.map((product) => (
             <div key={product.id} className="bg-gray-50 rounded-lg p-4 space-y-3">
               <div className="flex gap-4">
-                <img
-                  src={product.image_url}
-                  alt={product.title}
-                  className="w-16 h-16 rounded-lg object-cover flex-shrink-0"
-                  onError={(e) => e.target.src = 'https://via.placeholder.com/50'}
-                />
+                {product.image_url ? (
+                  <img
+                    src={product.image_url}
+                    alt={product.title}
+                    className="w-16 h-16 rounded-lg object-cover flex-shrink-0"
+                  />
+                ) : (
+                  <div className="w-16 h-16 rounded-lg bg-gray-200 flex-shrink-0" />
+                )}
                 <div className="flex-1">
                   <p className="font-semibold text-gray-900">{product.title}</p>
                   <span className="inline-block bg-gray-100 text-gray-700 px-2 py-0.5 rounded text-xs mt-1">

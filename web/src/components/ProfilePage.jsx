@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { getMe, deleteAccount } from '../services/api';
-import { User, LogOut, Package, DollarSign, Heart, Trash2, AlertTriangle } from 'lucide-react';
+import { User, Package, DollarSign, Heart, Trash2, AlertTriangle } from 'lucide-react';
 
 export default function ProfilePage({ token, onLogout }) {
   const [user, setUser] = useState(null);
@@ -68,21 +68,13 @@ export default function ProfilePage({ token, onLogout }) {
           </div>
           <div className="flex items-center gap-3 text-gray-700">
             <DollarSign className="w-5 h-5 text-green-500" />
-            <span className="text-sm">Satılık: <strong>{stats.activeListings}</strong></span>
+            <span className="text-sm">Aktif: <strong>{stats.activeListings}</strong></span>
           </div>
           <div className="flex items-center gap-3 text-gray-700">
             <Heart className="w-5 h-5 text-red-400" />
             <span className="text-sm">Bağış: <strong>{stats.donationListings}</strong></span>
           </div>
         </div>
-
-        <button
-          onClick={onLogout}
-          className="w-full flex items-center justify-center gap-2 bg-red-600 hover:bg-red-700 text-white px-4 py-3 rounded-lg transition font-semibold"
-        >
-          <LogOut className="w-5 h-5" />
-          Güvenli Çıkış
-        </button>
 
         <button
           onClick={() => setShowDeleteModal(true)}
