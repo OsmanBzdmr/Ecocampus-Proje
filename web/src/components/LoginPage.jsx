@@ -26,37 +26,35 @@ export default function LoginPage({ setToken, onSwitchToRegister }) {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-eco-50 to-eco-100 flex items-center justify-center p-4">
-      {/* Animated background */}
-      <div className="absolute inset-0 overflow-hidden">
-        <div className="absolute -top-40 -right-40 w-80 h-80 bg-eco-200 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-pulse"></div>
-        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-eco-300 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-pulse animation-delay-2000"></div>
-      </div>
-
-      {/* Login Card */}
+    <div className="min-h-screen bg-paper paper-panel flex items-center justify-center p-4">
       <div className="relative w-full max-w-md">
-        <div className="bg-white rounded-2xl shadow-2xl p-8 space-y-8">
-          {/* Header */}
-          <div className="text-center space-y-2">
-            <div className="flex justify-center">
-              <div className="bg-eco-100 p-4 rounded-full">
-                <Leaf className="w-12 h-12 text-eco-600" />
-              </div>
-            </div>
-            <h1 className="text-3xl font-bold text-gray-900">EcoCampus</h1>
-            <p className="text-gray-600">Pazaryeri Yönetim Paneli</p>
-          </div>
+        {/* Etiket ipi */}
+        <div className="flex justify-center mb-0">
+          <div className="w-px h-8 bg-line" />
+        </div>
 
-          {/* Form */}
+        <div className="bg-moss-700 rounded-t-2xl px-8 pt-8 pb-10 text-center relative">
+          <div className="absolute left-1/2 -translate-x-1/2 -top-2 w-4 h-4 rounded-full bg-paper border-2 border-line" />
+          <div className="flex justify-center mb-3">
+            <div className="bg-moss-500 p-3 rounded-full border-2 border-moss-400">
+              <Leaf className="w-8 h-8 text-paper" />
+            </div>
+          </div>
+          <h1 className="font-display text-3xl font-black text-paper tracking-tight">EcoCampus</h1>
+          <p className="text-moss-200 text-sm mt-1 font-medium">Kampüs Takas Pazarı</p>
+        </div>
+
+        {/* Fiş gövdesi */}
+        <div className="bg-white rounded-b-2xl shadow-2xl px-8 py-8 space-y-5 border-x border-b border-line">
           <form onSubmit={handleSubmit} className="space-y-4">
             {error && (
-              <div className="bg-red-50 border border-red-200 rounded-lg p-3 flex items-start gap-3">
-                <span className="text-red-600 font-medium">{error}</span>
+              <div className="bg-clay-50 border border-clay-100 rounded-lg p-3 flex items-start gap-3">
+                <span className="text-clay-600 font-medium text-sm">{error}</span>
               </div>
             )}
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-xs font-semibold text-ink/70 uppercase tracking-wide mb-2">
                 E-posta Adresi
               </label>
               <input
@@ -64,13 +62,13 @@ export default function LoginPage({ setToken, onSwitchToRegister }) {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="example@university.edu"
-                className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-eco-500 focus:border-transparent outline-none transition"
+                className="w-full px-4 py-3 rounded-lg border border-line bg-paper/40 focus:ring-2 focus:ring-moss-400 focus:border-transparent outline-none transition font-body"
                 required
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-xs font-semibold text-ink/70 uppercase tracking-wide mb-2">
                 Şifre
               </label>
               <input
@@ -78,7 +76,7 @@ export default function LoginPage({ setToken, onSwitchToRegister }) {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="••••••••"
-                className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-eco-500 focus:border-transparent outline-none transition"
+                className="w-full px-4 py-3 rounded-lg border border-line bg-paper/40 focus:ring-2 focus:ring-moss-400 focus:border-transparent outline-none transition font-body"
                 required
               />
             </div>
@@ -86,11 +84,11 @@ export default function LoginPage({ setToken, onSwitchToRegister }) {
             <button
               type="submit"
               disabled={loading}
-              className="w-full bg-gradient-to-r from-eco-500 to-eco-600 hover:from-eco-600 hover:to-eco-700 text-white font-semibold py-3 rounded-lg transition-all duration-200 disabled:opacity-50 flex items-center justify-center gap-2"
+              className="w-full bg-moss-600 hover:bg-moss-700 text-paper font-display font-bold py-3 rounded-lg transition-all duration-200 disabled:opacity-50 flex items-center justify-center gap-2 tracking-wide"
             >
               {loading ? (
                 <>
-                  <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                  <div className="w-5 h-5 border-2 border-paper border-t-transparent rounded-full animate-spin"></div>
                   Giriş Yapılıyor...
                 </>
               ) : (
@@ -102,12 +100,11 @@ export default function LoginPage({ setToken, onSwitchToRegister }) {
             </button>
           </form>
 
-          {/* Footer */}
-          <p className="text-center text-gray-600 text-sm">
+          <p className="text-center text-ink/60 text-sm">
             Hesabın yok mu?{' '}
             <button
               onClick={onSwitchToRegister}
-              className="text-eco-600 font-semibold hover:underline"
+              className="text-clay-600 font-semibold hover:underline"
             >
               Kayıt ol
             </button>

@@ -103,17 +103,17 @@ export default function ProductForm({ token, editingProduct, onProductAdded, onC
     <>
       {toast && <Toast toast={toast} onClose={() => setToast(null)} />}
       
-      <div className={`bg-white rounded-2xl shadow-lg p-8 ${isEditing ? 'ring-2 ring-eco-400' : ''}`}>
+      <div className={`bg-white rounded-2xl shadow-lg p-8 border border-line/40 ${isEditing ? 'ring-2 ring-mustard-400' : ''}`}>
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center gap-3">
-            <div className={`p-2 rounded-lg ${isEditing ? 'bg-amber-100' : 'bg-eco-100'}`}>
+            <div className={`p-2 rounded-lg ${isEditing ? 'bg-mustard-100' : 'bg-moss-100'}`}>
               {isEditing ? (
-                <Pencil className="w-6 h-6 text-amber-600" />
+                <Pencil className="w-6 h-6 text-mustard-600" />
               ) : (
-                <Plus className="w-6 h-6 text-eco-600" />
+                <Plus className="w-6 h-6 text-moss-600" />
               )}
             </div>
-            <h2 className="text-2xl font-bold text-gray-900">
+            <h2 className="font-display text-2xl font-black text-ink">
               {isEditing ? 'İlanı Düzenle' : 'Yeni İlan Ver'}
             </h2>
           </div>
@@ -121,7 +121,7 @@ export default function ProductForm({ token, editingProduct, onProductAdded, onC
             <button
               type="button"
               onClick={onCancelEdit}
-              className="flex items-center gap-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100 px-3 py-2 rounded-lg transition font-medium"
+              className="flex items-center gap-2 text-ink/50 hover:text-ink/80 hover:bg-paper px-3 py-2 rounded-lg transition font-medium font-body"
             >
               <X className="w-4 h-4" />
               İptal
@@ -131,7 +131,7 @@ export default function ProductForm({ token, editingProduct, onProductAdded, onC
 
         <form onSubmit={handleSubmit} className="space-y-5">
           <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-2">
+            <label className="block text-xs font-semibold text-ink/70 uppercase tracking-wide mb-2">
               Ürün Adı
             </label>
             <input
@@ -139,18 +139,18 @@ export default function ProductForm({ token, editingProduct, onProductAdded, onC
               value={form.title}
               onChange={(e) => setForm({ ...form, title: e.target.value })}
               placeholder="Örn: Kullanılmış Laptop"
-              className="w-full px-4 py-2.5 rounded-lg border border-gray-300 focus:ring-2 focus:ring-eco-500 focus:border-transparent outline-none transition"
+              className="w-full px-4 py-2.5 rounded-lg border border-line bg-paper/40 focus:ring-2 focus:ring-moss-400 focus:border-transparent outline-none transition font-body"
             />
           </div>
 
           <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-2">
+            <label className="block text-xs font-semibold text-ink/70 uppercase tracking-wide mb-2">
               Kategori
             </label>
             <select
               value={form.category_id}
               onChange={(e) => setForm({ ...form, category_id: e.target.value })}
-              className="w-full px-4 py-2.5 rounded-lg border border-gray-300 focus:ring-2 focus:ring-eco-500 focus:border-transparent outline-none transition bg-white"
+              className="w-full px-4 py-2.5 rounded-lg border border-line bg-white focus:ring-2 focus:ring-moss-400 focus:border-transparent outline-none transition font-body"
             >
               {categories.length === 0 && <option value="">Kategoriler yükleniyor...</option>}
               {categories.map((cat) => (
@@ -162,7 +162,7 @@ export default function ProductForm({ token, editingProduct, onProductAdded, onC
           </div>
 
           <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-2">
+            <label className="block text-xs font-semibold text-ink/70 uppercase tracking-wide mb-2">
               Fiyat (₺)
             </label>
             <input
@@ -170,15 +170,15 @@ export default function ProductForm({ token, editingProduct, onProductAdded, onC
               value={form.price}
               onChange={(e) => setForm({ ...form, price: e.target.value })}
               placeholder="0 (Bağış için), veya 100"
-              className="w-full px-4 py-2.5 rounded-lg border border-gray-300 focus:ring-2 focus:ring-eco-500 focus:border-transparent outline-none transition"
+              className="w-full px-4 py-2.5 rounded-lg border border-line bg-paper/40 focus:ring-2 focus:ring-moss-400 focus:border-transparent outline-none transition font-body"
               min="0"
               step="0.01"
             />
-            <p className="text-xs text-gray-500 mt-1">💡 Fiyat 0 ₺ ise otomatik olarak "Bağış" olarak işaretlenir</p>
+            <p className="text-xs text-ink/40 mt-1 font-body">💡 Fiyat 0 ₺ ise otomatik olarak "Bağış" olarak işaretlenir</p>
           </div>
 
           <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-2">
+            <label className="block text-xs font-semibold text-ink/70 uppercase tracking-wide mb-2">
               Açıklama
             </label>
             <textarea
@@ -186,39 +186,39 @@ export default function ProductForm({ token, editingProduct, onProductAdded, onC
               onChange={(e) => setForm({ ...form, description: e.target.value })}
               placeholder="Ürün hakkında bilgi verin..."
               rows="3"
-              className="w-full px-4 py-2.5 rounded-lg border border-gray-300 focus:ring-2 focus:ring-eco-500 focus:border-transparent outline-none transition resize-none"
+              className="w-full px-4 py-2.5 rounded-lg border border-line bg-paper/40 focus:ring-2 focus:ring-moss-400 focus:border-transparent outline-none transition resize-none font-body"
             />
           </div>
 
           <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-2">
+            <label className="block text-xs font-semibold text-ink/70 uppercase tracking-wide mb-2">
               Görsel
             </label>
             <input
               type="file"
               accept="image/jpeg,image/png,image/gif,image/webp"
               onChange={(e) => setImageFile(e.target.files[0])}
-              className="w-full px-4 py-2.5 rounded-lg border border-gray-300 focus:ring-2 focus:ring-eco-500 focus:border-transparent outline-none transition file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:bg-eco-50 file:text-eco-700 file:font-semibold hover:file:bg-eco-100"
+              className="w-full px-4 py-2.5 rounded-lg border border-line bg-paper/40 focus:ring-2 focus:ring-moss-400 focus:border-transparent outline-none transition file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:bg-moss-100 file:text-moss-700 file:font-semibold hover:file:bg-moss-200 font-body"
             />
-            <p className="text-xs text-gray-500 mt-1">JPG, PNG, GIF veya WEBP (max 5MB). Veya URL girmek isterseniz:</p>
+            <p className="text-xs text-ink/40 mt-1 font-body">JPG, PNG, GIF veya WEBP (max 5MB). Veya URL girmek isterseniz:</p>
             <input
               type="url"
               value={form.image_url}
               onChange={(e) => { setForm({ ...form, image_url: e.target.value }); setImageFile(null); }}
               placeholder="https://example.com/image.jpg"
-              className="w-full px-4 py-2.5 rounded-lg border border-gray-300 focus:ring-2 focus:ring-eco-500 focus:border-transparent outline-none transition mt-2"
+              className="w-full px-4 py-2.5 rounded-lg border border-line bg-paper/40 focus:ring-2 focus:ring-moss-400 focus:border-transparent outline-none transition mt-2 font-body"
             />
           </div>
 
           {isEditing && (
             <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2">
+              <label className="block text-xs font-semibold text-ink/70 uppercase tracking-wide mb-2">
                 Durum
               </label>
               <select
                 value={form.status}
                 onChange={(e) => setForm({ ...form, status: e.target.value })}
-                className="w-full px-4 py-2.5 rounded-lg border border-gray-300 focus:ring-2 focus:ring-eco-500 focus:border-transparent outline-none transition bg-white"
+                className="w-full px-4 py-2.5 rounded-lg border border-line bg-white focus:ring-2 focus:ring-moss-400 focus:border-transparent outline-none transition font-body"
               >
                 <option value="active">Aktif</option>
                 <option value="reserved">Rezerve</option>
@@ -232,7 +232,7 @@ export default function ProductForm({ token, editingProduct, onProductAdded, onC
               <button
                 type="button"
                 onClick={onCancelEdit}
-                className="flex-1 px-4 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 font-medium transition"
+                className="flex-1 px-4 py-3 border border-line text-ink/70 rounded-lg hover:bg-paper font-medium transition font-body"
               >
                 İptal
               </button>
@@ -240,7 +240,7 @@ export default function ProductForm({ token, editingProduct, onProductAdded, onC
             <button
               type="submit"
               disabled={loading}
-              className={`${isEditing ? 'flex-1' : 'w-full'} bg-gradient-to-r from-eco-500 to-eco-600 hover:from-eco-600 hover:to-eco-700 text-white font-semibold py-3 rounded-lg transition-all duration-200 disabled:opacity-50 flex items-center justify-center gap-2`}
+              className={`${isEditing ? 'flex-1' : 'w-full'} bg-moss-600 hover:bg-moss-700 text-paper font-display font-bold py-3 rounded-lg transition-all duration-200 disabled:opacity-50 flex items-center justify-center gap-2 tracking-wide`}
             >
               {loading ? (
                 <>
