@@ -25,7 +25,11 @@
 - ✅ **Kapsamlı Testler** — Backend'de Jest + Supertest (53 test), Web'de Vitest + Testing Library (26 test), Mobile'da Jest + ts-jest (20 test) — toplam 99 test
 - 👤 **Profil Sayfası** — Kullanıcı bilgileri, üyelik tarihi, kendi ilanlarının listesi ve istatistikler (web + mobil)
 - 🗑️ **Hesap Silme** — Şifre doğrulamalı kalıcı hesap silme; kullanıcının tüm ilanları ve favorileri cascade ile silinir (web + mobil)
-- 🎨 **Modern UI** — Tailwind CSS ile responsive tasarım, toast bildirimleri, loading animasyonları
+- 🌙 **Dark Mode** — Sistem tercihine uyumlu, localStorage ile kalıcı, manuel toggle (sidebar ve auth sayfalarında)
+- 🎨 **Vintage Kağıt Teması** — Özel renk paleti (moss/clay/mustard), etiket bileşeni (tag), receipt-style auth kartları
+- ✨ **Animasyonlar** — Sayfa geçişlerinde fade-in/up, modal scale-in, toast slide-in, hover efektleri, loading skeleton
+- 📱 **Mobil Sidebar** — Hamburger menü ile slide-out drawer, mobil header
+- 🔤 **Custom Tipografi** — Archivo (başlık), IBM Plex Sans (gövde), IBM Plex Mono (kod) — Google Fonts
 
 ---
 
@@ -38,6 +42,7 @@
 | Güvenlik | JWT, Bcryptjs, Helmet, express-rate-limit, express-validator |
 | Test & Kalite | Jest, Supertest, Vitest, @testing-library/react, ts-jest, ESLint |
 | Web Frontend | React 19, Tailwind CSS v3, Axios, Lucide React, Vitest |
+| Web Fonts | Google Fonts — Archivo, IBM Plex Sans, IBM Plex Mono |
 | Mobil | React Native (Expo), jest, ts-jest, react-test-renderer |
 | Build Tool | Vite |
 | Görsel Yükleme | Multer |
@@ -85,12 +90,14 @@ Eco_campus/
 │   └── .env.example
 ├── web/
 │   ├── src/
-│   │   ├── components/
-│   │   │   ├── LoginPage.jsx          # Giriş formu
-│   │   │   ├── RegisterPage.jsx       # Kayıt formu
-│   │   │   ├── Dashboard.jsx          # Ana panel + arama/filtre/sayfalama
+│   │   ├── context/
+│   │   │   └── ThemeContext.jsx        # Dark/light tema yönetimi (Context + localStorage)
+│   ├── components/
+│   │   │   ├── LoginPage.jsx          # Giriş formu (fiş tasarımı)
+│   │   │   ├── RegisterPage.jsx       # Kayıt formu (fiş tasarımı)
+│   │   │   ├── Dashboard.jsx          # Ana panel + arama/filtre/sayfalama + hamburger drawer
 │   │   │   ├── ProductForm.jsx        # İlan ekleme/düzenleme (file input + status)
-│   │   │   ├── ProductTable.jsx       # Tablo/kart görünümü + durum badge
+│   │   │   ├── ProductTable.jsx       # Tablo/kart görünümü + tag badge
 │   │   │   ├── ProductDetail.jsx      # Ürün detay modalı
 │   │   │   ├── StatsCard.jsx          # İstatistik kartları
 │   │   │   ├── ProfilePage.jsx        # Profil sayfası
