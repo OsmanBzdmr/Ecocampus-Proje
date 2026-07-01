@@ -103,17 +103,17 @@ export default function ProductForm({ token, editingProduct, onProductAdded, onC
     <>
       {toast && <Toast toast={toast} onClose={() => setToast(null)} />}
       
-      <div className={`bg-white rounded-2xl shadow-lg p-8 border border-line/40 ${isEditing ? 'ring-2 ring-mustard-400' : ''}`}>
+      <div className={`bg-white dark:bg-[var(--bg-secondary)] rounded-2xl shadow-lg p-8 border border-line/40 dark:border-[var(--border-color)] ${isEditing ? 'ring-2 ring-mustard-400' : ''}`}>
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center gap-3">
-            <div className={`p-2 rounded-lg ${isEditing ? 'bg-mustard-100' : 'bg-moss-100'}`}>
+            <div className={`p-2 rounded-lg ${isEditing ? 'bg-mustard-100 dark:bg-mustard-900/50' : 'bg-moss-100 dark:bg-moss-800'}`}>
               {isEditing ? (
-                <Pencil className="w-6 h-6 text-mustard-600" />
+                <Pencil className="w-6 h-6 text-mustard-600 dark:text-mustard-400" />
               ) : (
-                <Plus className="w-6 h-6 text-moss-600" />
+                <Plus className="w-6 h-6 text-moss-600 dark:text-moss-400" />
               )}
             </div>
-            <h2 className="font-display text-2xl font-black text-ink">
+            <h2 className="font-display text-2xl font-black text-ink dark:text-[var(--text-primary)]">
               {isEditing ? 'İlanı Düzenle' : 'Yeni İlan Ver'}
             </h2>
           </div>
@@ -121,7 +121,7 @@ export default function ProductForm({ token, editingProduct, onProductAdded, onC
             <button
               type="button"
               onClick={onCancelEdit}
-              className="flex items-center gap-2 text-ink/50 hover:text-ink/80 hover:bg-paper px-3 py-2 rounded-lg transition font-medium font-body"
+              className="flex items-center gap-2 text-ink/50 dark:text-[var(--text-muted)] hover:text-ink/80 dark:hover:text-[var(--text-primary)] hover:bg-paper dark:hover:bg-[var(--bg-tertiary)] px-3 py-2 rounded-lg transition font-medium font-body"
             >
               <X className="w-4 h-4" />
               İptal
@@ -131,7 +131,7 @@ export default function ProductForm({ token, editingProduct, onProductAdded, onC
 
         <form onSubmit={handleSubmit} className="space-y-5">
           <div>
-            <label className="block text-xs font-semibold text-ink/70 uppercase tracking-wide mb-2">
+            <label className="block text-xs font-semibold text-ink/70 dark:text-[var(--text-secondary)] uppercase tracking-wide mb-2">
               Ürün Adı
             </label>
             <input
@@ -139,18 +139,18 @@ export default function ProductForm({ token, editingProduct, onProductAdded, onC
               value={form.title}
               onChange={(e) => setForm({ ...form, title: e.target.value })}
               placeholder="Örn: Kullanılmış Laptop"
-              className="w-full px-4 py-2.5 rounded-lg border border-line bg-paper/40 focus:ring-2 focus:ring-moss-400 focus:border-transparent outline-none transition font-body"
+              className="w-full px-4 py-2.5 rounded-lg border border-line dark:border-[var(--border-color)] bg-paper/40 dark:bg-[var(--bg-tertiary)] dark:text-[var(--text-primary)] focus:ring-2 focus:ring-moss-400 focus:border-transparent outline-none transition font-body"
             />
           </div>
 
           <div>
-            <label className="block text-xs font-semibold text-ink/70 uppercase tracking-wide mb-2">
+            <label className="block text-xs font-semibold text-ink/70 dark:text-[var(--text-secondary)] uppercase tracking-wide mb-2">
               Kategori
             </label>
             <select
               value={form.category_id}
               onChange={(e) => setForm({ ...form, category_id: e.target.value })}
-              className="w-full px-4 py-2.5 rounded-lg border border-line bg-white focus:ring-2 focus:ring-moss-400 focus:border-transparent outline-none transition font-body"
+              className="w-full px-4 py-2.5 rounded-lg border border-line dark:border-[var(--border-color)] bg-white dark:bg-[var(--bg-secondary)] dark:text-[var(--text-primary)] focus:ring-2 focus:ring-moss-400 focus:border-transparent outline-none transition font-body"
             >
               {categories.length === 0 && <option value="">Kategoriler yükleniyor...</option>}
               {categories.map((cat) => (
@@ -162,7 +162,7 @@ export default function ProductForm({ token, editingProduct, onProductAdded, onC
           </div>
 
           <div>
-            <label className="block text-xs font-semibold text-ink/70 uppercase tracking-wide mb-2">
+            <label className="block text-xs font-semibold text-ink/70 dark:text-[var(--text-secondary)] uppercase tracking-wide mb-2">
               Fiyat (₺)
             </label>
             <input
@@ -170,15 +170,15 @@ export default function ProductForm({ token, editingProduct, onProductAdded, onC
               value={form.price}
               onChange={(e) => setForm({ ...form, price: e.target.value })}
               placeholder="0 (Bağış için), veya 100"
-              className="w-full px-4 py-2.5 rounded-lg border border-line bg-paper/40 focus:ring-2 focus:ring-moss-400 focus:border-transparent outline-none transition font-body"
+              className="w-full px-4 py-2.5 rounded-lg border border-line dark:border-[var(--border-color)] bg-paper/40 dark:bg-[var(--bg-tertiary)] dark:text-[var(--text-primary)] focus:ring-2 focus:ring-moss-400 focus:border-transparent outline-none transition font-body"
               min="0"
               step="0.01"
             />
-            <p className="text-xs text-ink/40 mt-1 font-body">💡 Fiyat 0 ₺ ise otomatik olarak "Bağış" olarak işaretlenir</p>
+            <p className="text-xs text-ink/40 dark:text-[var(--text-muted)] mt-1 font-body">💡 Fiyat 0 ₺ ise otomatik olarak "Bağış" olarak işaretlenir</p>
           </div>
 
           <div>
-            <label className="block text-xs font-semibold text-ink/70 uppercase tracking-wide mb-2">
+            <label className="block text-xs font-semibold text-ink/70 dark:text-[var(--text-secondary)] uppercase tracking-wide mb-2">
               Açıklama
             </label>
             <textarea
@@ -186,39 +186,39 @@ export default function ProductForm({ token, editingProduct, onProductAdded, onC
               onChange={(e) => setForm({ ...form, description: e.target.value })}
               placeholder="Ürün hakkında bilgi verin..."
               rows="3"
-              className="w-full px-4 py-2.5 rounded-lg border border-line bg-paper/40 focus:ring-2 focus:ring-moss-400 focus:border-transparent outline-none transition resize-none font-body"
+              className="w-full px-4 py-2.5 rounded-lg border border-line dark:border-[var(--border-color)] bg-paper/40 dark:bg-[var(--bg-tertiary)] dark:text-[var(--text-primary)] focus:ring-2 focus:ring-moss-400 focus:border-transparent outline-none transition resize-none font-body"
             />
           </div>
 
           <div>
-            <label className="block text-xs font-semibold text-ink/70 uppercase tracking-wide mb-2">
+            <label className="block text-xs font-semibold text-ink/70 dark:text-[var(--text-secondary)] uppercase tracking-wide mb-2">
               Görsel
             </label>
             <input
               type="file"
               accept="image/jpeg,image/png,image/gif,image/webp"
               onChange={(e) => setImageFile(e.target.files[0])}
-              className="w-full px-4 py-2.5 rounded-lg border border-line bg-paper/40 focus:ring-2 focus:ring-moss-400 focus:border-transparent outline-none transition file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:bg-moss-100 file:text-moss-700 file:font-semibold hover:file:bg-moss-200 font-body"
+              className="w-full px-4 py-2.5 rounded-lg border border-line dark:border-[var(--border-color)] bg-paper/40 dark:bg-[var(--bg-tertiary)] dark:text-[var(--text-primary)] focus:ring-2 focus:ring-moss-400 focus:border-transparent outline-none transition file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:bg-moss-100 dark:file:bg-moss-700 file:text-moss-700 dark:file:text-moss-200 file:font-semibold hover:file:bg-moss-200 dark:hover:file:bg-moss-600 font-body"
             />
-            <p className="text-xs text-ink/40 mt-1 font-body">JPG, PNG, GIF veya WEBP (max 5MB). Veya URL girmek isterseniz:</p>
+            <p className="text-xs text-ink/40 dark:text-[var(--text-muted)] mt-1 font-body">JPG, PNG, GIF veya WEBP (max 5MB). Veya URL girmek isterseniz:</p>
             <input
               type="url"
               value={form.image_url}
               onChange={(e) => { setForm({ ...form, image_url: e.target.value }); setImageFile(null); }}
               placeholder="https://example.com/image.jpg"
-              className="w-full px-4 py-2.5 rounded-lg border border-line bg-paper/40 focus:ring-2 focus:ring-moss-400 focus:border-transparent outline-none transition mt-2 font-body"
+              className="w-full px-4 py-2.5 rounded-lg border border-line dark:border-[var(--border-color)] bg-paper/40 dark:bg-[var(--bg-tertiary)] dark:text-[var(--text-primary)] focus:ring-2 focus:ring-moss-400 focus:border-transparent outline-none transition mt-2 font-body"
             />
           </div>
 
           {isEditing && (
             <div>
-              <label className="block text-xs font-semibold text-ink/70 uppercase tracking-wide mb-2">
+              <label className="block text-xs font-semibold text-ink/70 dark:text-[var(--text-secondary)] uppercase tracking-wide mb-2">
                 Durum
               </label>
               <select
                 value={form.status}
                 onChange={(e) => setForm({ ...form, status: e.target.value })}
-                className="w-full px-4 py-2.5 rounded-lg border border-line bg-white focus:ring-2 focus:ring-moss-400 focus:border-transparent outline-none transition font-body"
+                className="w-full px-4 py-2.5 rounded-lg border border-line dark:border-[var(--border-color)] bg-white dark:bg-[var(--bg-secondary)] dark:text-[var(--text-primary)] focus:ring-2 focus:ring-moss-400 focus:border-transparent outline-none transition font-body"
               >
                 <option value="active">Aktif</option>
                 <option value="reserved">Rezerve</option>
@@ -232,7 +232,7 @@ export default function ProductForm({ token, editingProduct, onProductAdded, onC
               <button
                 type="button"
                 onClick={onCancelEdit}
-                className="flex-1 px-4 py-3 border border-line text-ink/70 rounded-lg hover:bg-paper font-medium transition font-body"
+                className="flex-1 px-4 py-3 border border-line dark:border-[var(--border-color)] text-ink/70 dark:text-[var(--text-secondary)] rounded-lg hover:bg-paper dark:hover:bg-[var(--bg-tertiary)] font-medium transition font-body"
               >
                 İptal
               </button>

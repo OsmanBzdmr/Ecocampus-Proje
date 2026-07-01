@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { ThemeProvider } from './context/ThemeContext';
 import LoginPage from './components/LoginPage';
 import RegisterPage from './components/RegisterPage';
 import Dashboard from './components/Dashboard';
@@ -27,23 +28,24 @@ function App() {
     setToken(null);
   };
 
-  if (!token) {
-    if (authView === 'register') {
-      return <RegisterPage onSwitchToLogin={() => setAuthView('login')} />;
-    }
-    return (
-      <LoginPage
-        setToken={setToken}
-        onSwitchToRegister={() => setAuthView('register')}
-      />
-    );
-  }
-
   return (
-    <Dashboard
-      token={token}
-      onLogout={handleLogout}
-    />
+    <ThemeProvider>
+      {!token ? (
+        authView === 'register' ? (
+          <RegisterPage onSwitchToLogin={() => setAuthView('login')} />
+        ) : (
+          <LoginPage
+            setToken={setToken}
+            onSwitchToRegister={() => setAuthView('register')}
+          />
+        )
+      ) : (
+        <Dashboard
+          token={token}
+          onLogout={handleLogout}
+        />
+      )}
+    </ThemeProvider>
   );
 }
 

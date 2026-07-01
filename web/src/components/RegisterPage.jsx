@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
-import { UserPlus, Leaf } from 'lucide-react';
+import { UserPlus, Leaf, Sun, Moon } from 'lucide-react';
 import { register as registerApi } from '../services/api';
+import { useTheme } from '../context/ThemeContext';
 
 export default function RegisterPage({ onSwitchToLogin }) {
+  const { dark, toggle: toggleTheme } = useTheme();
   const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -39,13 +41,19 @@ export default function RegisterPage({ onSwitchToLogin }) {
 
   if (success) {
     return (
-      <div className="min-h-screen bg-paper paper-panel flex items-center justify-center p-4">
-        <div className="relative w-full max-w-md">
+      <div className="min-h-screen bg-paper paper-panel dark:bg-[var(--bg-primary)] flex items-center justify-center p-4">
+        <button
+          onClick={toggleTheme}
+          className="fixed top-4 right-4 p-2.5 rounded-full bg-moss-700 dark:bg-moss-600 text-paper hover:bg-moss-600 dark:hover:bg-moss-500 transition z-10"
+        >
+          {dark ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
+        </button>
+        <div className="relative w-full max-w-md animate-fade-in-up">
           <div className="flex justify-center mb-0">
-            <div className="w-px h-8 bg-line" />
+            <div className="w-px h-8 bg-line dark:bg-[var(--border-color)]" />
           </div>
-          <div className="bg-moss-700 rounded-t-2xl px-8 pt-8 pb-10 text-center relative">
-            <div className="absolute left-1/2 -translate-x-1/2 -top-2 w-4 h-4 rounded-full bg-paper border-2 border-line" />
+          <div className="bg-moss-700 dark:bg-moss-800 rounded-t-2xl px-8 pt-8 pb-10 text-center relative">
+            <div className="absolute left-1/2 -translate-x-1/2 -top-2 w-4 h-4 rounded-full bg-paper dark:bg-[var(--bg-primary)] border-2 border-line dark:border-[var(--border-color)]" />
             <div className="flex justify-center mb-3">
               <div className="bg-moss-500 p-3 rounded-full border-2 border-moss-400">
                 <Leaf className="w-8 h-8 text-paper" />
@@ -53,8 +61,8 @@ export default function RegisterPage({ onSwitchToLogin }) {
             </div>
             <h1 className="font-display text-2xl font-black text-paper tracking-tight">Kayıt başarılı! 🎉</h1>
           </div>
-          <div className="bg-white rounded-b-2xl shadow-2xl px-8 py-8 space-y-5 border-x border-b border-line text-center">
-            <p className="text-ink/70 font-body">Artık giriş yapabilirsin.</p>
+          <div className="bg-white dark:bg-[var(--bg-secondary)] rounded-b-2xl shadow-2xl px-8 py-8 space-y-5 border-x border-b border-line dark:border-[var(--border-color)] text-center">
+            <p className="text-ink/70 dark:text-[var(--text-secondary)] font-body">Artık giriş yapabilirsin.</p>
             <button
               onClick={onSwitchToLogin}
               className="w-full bg-moss-600 hover:bg-moss-700 text-paper font-display font-bold py-3 rounded-lg transition-all duration-200 tracking-wide"
@@ -68,14 +76,21 @@ export default function RegisterPage({ onSwitchToLogin }) {
   }
 
   return (
-    <div className="min-h-screen bg-paper paper-panel flex items-center justify-center p-4">
-      <div className="relative w-full max-w-md">
+    <div className="min-h-screen bg-paper paper-panel dark:bg-[var(--bg-primary)] flex items-center justify-center p-4">
+      <button
+        onClick={toggleTheme}
+        className="fixed top-4 right-4 p-2.5 rounded-full bg-moss-700 dark:bg-moss-600 text-paper hover:bg-moss-600 dark:hover:bg-moss-500 transition z-10"
+      >
+        {dark ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
+      </button>
+
+      <div className="relative w-full max-w-md animate-fade-in-up">
         <div className="flex justify-center mb-0">
-          <div className="w-px h-8 bg-line" />
+          <div className="w-px h-8 bg-line dark:bg-[var(--border-color)]" />
         </div>
 
-        <div className="bg-moss-700 rounded-t-2xl px-8 pt-8 pb-10 text-center relative">
-          <div className="absolute left-1/2 -translate-x-1/2 -top-2 w-4 h-4 rounded-full bg-paper border-2 border-line" />
+        <div className="bg-moss-700 dark:bg-moss-800 rounded-t-2xl px-8 pt-8 pb-10 text-center relative">
+          <div className="absolute left-1/2 -translate-x-1/2 -top-2 w-4 h-4 rounded-full bg-paper dark:bg-[var(--bg-primary)] border-2 border-line dark:border-[var(--border-color)]" />
           <div className="flex justify-center mb-3">
             <div className="bg-moss-500 p-3 rounded-full border-2 border-moss-400">
               <Leaf className="w-8 h-8 text-paper" />
@@ -85,16 +100,16 @@ export default function RegisterPage({ onSwitchToLogin }) {
           <p className="text-moss-200 text-sm mt-1 font-medium">Yeni Hesap Oluştur</p>
         </div>
 
-        <div className="bg-white rounded-b-2xl shadow-2xl px-8 py-8 space-y-5 border-x border-b border-line">
+        <div className="bg-white dark:bg-[var(--bg-secondary)] rounded-b-2xl shadow-2xl px-8 py-8 space-y-5 border-x border-b border-line dark:border-[var(--border-color)]">
           <form onSubmit={handleSubmit} className="space-y-4">
             {error && (
-              <div className="bg-clay-50 border border-clay-100 rounded-lg p-3 flex items-start gap-3">
-                <span className="text-clay-600 font-medium text-sm">{error}</span>
+              <div className="bg-clay-50 dark:bg-clay-900/30 border border-clay-100 dark:border-clay-800 rounded-lg p-3 flex items-start gap-3">
+                <span className="text-clay-600 dark:text-clay-300 font-medium text-sm">{error}</span>
               </div>
             )}
 
             <div>
-              <label className="block text-xs font-semibold text-ink/70 uppercase tracking-wide mb-2">
+              <label className="block text-xs font-semibold text-ink/70 dark:text-[var(--text-secondary)] uppercase tracking-wide mb-2">
                 Kullanıcı Adı
               </label>
               <input
@@ -102,13 +117,13 @@ export default function RegisterPage({ onSwitchToLogin }) {
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
                 placeholder="kullanici_adi"
-                className="w-full px-4 py-3 rounded-lg border border-line bg-paper/40 focus:ring-2 focus:ring-moss-400 focus:border-transparent outline-none transition font-body"
+                className="w-full px-4 py-3 rounded-lg border border-line dark:border-[var(--border-color)] bg-paper/40 dark:bg-[var(--bg-tertiary)] dark:text-[var(--text-primary)] focus:ring-2 focus:ring-moss-400 focus:border-transparent outline-none transition font-body"
                 required
               />
             </div>
 
             <div>
-              <label className="block text-xs font-semibold text-ink/70 uppercase tracking-wide mb-2">
+              <label className="block text-xs font-semibold text-ink/70 dark:text-[var(--text-secondary)] uppercase tracking-wide mb-2">
                 E-posta Adresi
               </label>
               <input
@@ -116,13 +131,13 @@ export default function RegisterPage({ onSwitchToLogin }) {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="example@university.edu"
-                className="w-full px-4 py-3 rounded-lg border border-line bg-paper/40 focus:ring-2 focus:ring-moss-400 focus:border-transparent outline-none transition font-body"
+                className="w-full px-4 py-3 rounded-lg border border-line dark:border-[var(--border-color)] bg-paper/40 dark:bg-[var(--bg-tertiary)] dark:text-[var(--text-primary)] focus:ring-2 focus:ring-moss-400 focus:border-transparent outline-none transition font-body"
                 required
               />
             </div>
 
             <div>
-              <label className="block text-xs font-semibold text-ink/70 uppercase tracking-wide mb-2">
+              <label className="block text-xs font-semibold text-ink/70 dark:text-[var(--text-secondary)] uppercase tracking-wide mb-2">
                 Şifre
               </label>
               <input
@@ -130,13 +145,13 @@ export default function RegisterPage({ onSwitchToLogin }) {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="En az 6 karakter"
-                className="w-full px-4 py-3 rounded-lg border border-line bg-paper/40 focus:ring-2 focus:ring-moss-400 focus:border-transparent outline-none transition font-body"
+                className="w-full px-4 py-3 rounded-lg border border-line dark:border-[var(--border-color)] bg-paper/40 dark:bg-[var(--bg-tertiary)] dark:text-[var(--text-primary)] focus:ring-2 focus:ring-moss-400 focus:border-transparent outline-none transition font-body"
                 required
               />
             </div>
 
             <div>
-              <label className="block text-xs font-semibold text-ink/70 uppercase tracking-wide mb-2">
+              <label className="block text-xs font-semibold text-ink/70 dark:text-[var(--text-secondary)] uppercase tracking-wide mb-2">
                 Şifre (Tekrar)
               </label>
               <input
@@ -144,7 +159,7 @@ export default function RegisterPage({ onSwitchToLogin }) {
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
                 placeholder="••••••••"
-                className="w-full px-4 py-3 rounded-lg border border-line bg-paper/40 focus:ring-2 focus:ring-moss-400 focus:border-transparent outline-none transition font-body"
+                className="w-full px-4 py-3 rounded-lg border border-line dark:border-[var(--border-color)] bg-paper/40 dark:bg-[var(--bg-tertiary)] dark:text-[var(--text-primary)] focus:ring-2 focus:ring-moss-400 focus:border-transparent outline-none transition font-body"
                 required
               />
             </div>
@@ -168,11 +183,11 @@ export default function RegisterPage({ onSwitchToLogin }) {
             </button>
           </form>
 
-          <p className="text-center text-ink/60 text-sm">
+          <p className="text-center text-ink/60 dark:text-[var(--text-secondary)] text-sm">
             Zaten hesabın var mı?{' '}
             <button
               onClick={onSwitchToLogin}
-              className="text-clay-600 font-semibold hover:underline"
+              className="text-clay-600 dark:text-clay-400 font-semibold hover:underline"
             >
               Giriş yap
             </button>
